@@ -1,20 +1,22 @@
 @import "tailwindcss";
+/* @import '@next/font/google'; */
 
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --accent-color: #19F6E8;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+  --font-sans: var(--font-inter);
   --font-mono: var(--font-geist-mono);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
+    --background: #000B1D;
     --foreground: #ededed;
   }
 }
@@ -22,5 +24,36 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans), system-ui, sans-serif;
 }
+
+@layer utilities {
+  .btn-glow {
+    @apply transition-shadow duration-200;
+  }
+  .btn-glow:hover {
+    box-shadow: 0 0 0 4px rgba(25, 246, 232, 0.35);
+  }
+
+  /* sticky header with blur + translucent BG */
+  .header-blur {
+    @apply backdrop-blur-md border-b border-white/10 bg-white/70 dark:bg-[#0a0a0a]/70;
+  }
+}
+@layer utilities {
+  .grid-floor {
+    background-image:
+      linear-gradient(to right, rgba(0, 221, 255, 0.1) 1px, transparent 1px),
+      linear-gradient(to top, rgba(0, 221, 255, 0.1) 1px, transparent 1px);
+    background-size: 40px 40px; /* size of the grid squares */
+    transform: perspective(600px) rotateX(75deg);
+    opacity: 0.3;
+  }
+}
+
+
+/* For sticky header with backdrop blur */
+/* .header-blur {
+  background-opacity: 0.7;
+  @apply bg-opacity-70 backdrop-blur-md border-b border-white/10;
+} */
