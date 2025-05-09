@@ -5,15 +5,40 @@ import { motion } from "framer-motion";
 import Hero from "../components/Hero.client";
 import WhyChoose from "../components/WhyChoose.client";
 import dynamic from "next/dynamic";
+import type { GodRaysSettings } from '../components/GodRaysRemote.client'; // Import the interface
 
 // This ensures the WebGL code only runs in the browser
 const GodRays = dynamic(() => import('../components/VolumetricGodRays.client'), {
   ssr: false
 })
 
+const GodRaysRemote = dynamic(() => import('../components/GodRaysRemote.client'), {
+  ssr: false,
+});
+
+const initialGodRaysSettings: GodRaysSettings = {
+  exposure: 0.5,
+  decay: 0.9,
+  density: 0.5,
+  weight: 0.5,
+  samples: 100,
+  invert: false,
+  lightColor: '#002E70',
+  lightPositionX: 0,
+  lightPositionY: 0,
+  lightPositionZ: 0,
+  lightRadius: 1.0,
+  blur: 0.1,
+};
+
 export default function Home() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isHeaderBlurred, setIsHeaderBlurred] = useState(false);
+  const [godRaysSettings, setGodRaysSettings] = useState<GodRaysSettings>(initialGodRaysSettings);
+
+  const handleSettingsChange = (newSettings: Partial<GodRaysSettings>) => {
+    setGodRaysSettings(prevSettings => ({ ...prevSettings, ...newSettings }));
+  };
 
   // Handle header background on scroll
   useEffect(() => {
@@ -30,8 +55,10 @@ export default function Home() {
 // </div>
   return (
     <div className="flex flex-col min-h-screen justify-center">
+            <GodRaysRemote settings={godRaysSettings} onSettingsChange={handleSettingsChange} />
+
       <div className="absolute inset-0 bg-[#000A17] z-0 w-full h-full">
-      <GodRays />
+      <GodRays settings={godRaysSettings} />
       <div
         className="absolute inset-0 w-full h-full z-10"
         style={{
@@ -44,8 +71,10 @@ export default function Home() {
       />
       </div>
 
-      <div className="absolute bottom-0 left-0 h-[100vh] overflow-hidden pointer-events-none z-20 translate-x-[-25%]">
-        <svg
+      <div className="absolute bottom-0 self-center align-middle overflow-hidden pointer-events-none z-20 w-full h-[200vh]">
+        <div className="w-full h-full scale-x-400">
+
+      <svg
           className="w-full h-full "
           style={{
             transform: 'perspective(600px) rotateX(75deg)',
@@ -57,15 +86,16 @@ export default function Home() {
           <defs>
             <pattern
               id="grid"
-              width="100"
+              width="50"
               height="100"
               patternUnits="userSpaceOnUse"
             >
-              <path d="M 100 0 L 0 0 0 100" fill="none" stroke="rgba(0,221,255,0.1)" strokeWidth="2"  />
+              <path d="M 100 0 L 0 0 0 100" fill="none" stroke="rgba(0,221,255,0.1)" strokeWidth="4"  />
             </pattern>
           </defs>
-          <rect width="100%" height="100%" fill="url(#grid)" />
+          <rect width="100%" height="100%" fill="url(#grid)"  />
         </svg>
+        </div>
       </div>
       {/* Navigation */}
       <header

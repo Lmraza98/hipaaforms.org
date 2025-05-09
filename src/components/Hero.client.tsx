@@ -27,16 +27,16 @@ export default function Hero() {
           >
             HIPAA-Compliance<br/>Made Simple
           </motion.h1>
-          
+{/*           
           <motion.p 
             variants={fadeUp}
             initial="hidden"
             animate="show"
             transition={{ delay: 0.1 }}
-            className="max-w-2xl mt-4 text-lg text-gray-300 mb-6 text-center mx-auto"
+            className="max-w-2xl mt-4 sm:text-lg text-gray-300 mb-6 text-center mx-auto"
           >
             Create secure, fully editable healthcare forms in minutes.
-          </motion.p>
+          </motion.p> */}
           
           <motion.div
             variants={fadeUp}
@@ -53,7 +53,7 @@ export default function Hero() {
             initial="hidden"
             animate="show"
             transition={{ delay: 0.25 }}
-            className="block text-sm text-gray-400 mt-1 mb-3 text-center"
+            className="block text-xs  text-gray-400 text-center"
           >
             Plans start at <strong>$0/mo</strong>
           </motion.span>
@@ -63,7 +63,7 @@ export default function Hero() {
             initial="hidden"
             animate="show"
             transition={{ delay: 0.3 }}
-            className="mb-6 mx-auto"
+            className=""
           >
             <BadgeStrip />
           </motion.div>

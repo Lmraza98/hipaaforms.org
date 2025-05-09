@@ -25,7 +25,7 @@ export default function BadgeStrip() {
   if (!mounted) {
     // Simple SSR-compatible version
     return (
-      <div className="flex flex-wrap gap-3 mt-6 items-center">
+      <div className="flex flex-wrap gap-3 items-center">
         {badges.map((badge) => (
           <div key={badge.name} className="px-3 py-1.5 bg-gray-800/60 backdrop-blur rounded-full border border-white/10">
             <span className="text-xs md:text-sm font-medium text-gray-200">{badge.name}</span>
@@ -36,7 +36,7 @@ export default function BadgeStrip() {
   }
   
   return (
-    <div className="flex flex-wrap gap-3 mt-6 items-center">
+    <div className="flex flex-wrap gap-3 items-center">
       {badges.map((badge) => (
         <Tippy 
           key={badge.name}
