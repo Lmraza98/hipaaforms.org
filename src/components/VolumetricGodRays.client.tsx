@@ -3,6 +3,7 @@
 import { useEffect, useRef, useMemo } from 'react'
 import * as BABYLON from '@babylonjs/core'
 import '@babylonjs/core/PostProcesses/volumetricLightScatteringPostProcess'
+import '@babylonjs/core/PostProcesses/blurPostProcess'
 import '@babylonjs/core/Meshes/meshBuilder'
 import '@babylonjs/core/Materials/standardMaterial'
 import type { GodRaysSettings } from './GodRaysRemote.client';
@@ -45,6 +46,7 @@ interface VolumetricGodRaysProps {
 
 export default function VolumetricGodRays({ settings: propsSettings }: VolumetricGodRaysProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
+  const blurPostProcessRef = useRef<BABYLON.BlurPostProcess | null>(null); // Ref for blur post-process
 
   // Merge and sanitize settings using useMemo
   const settings = useMemo<GodRaysSettings>(() => {
@@ -188,6 +190,35 @@ export default function VolumetricGodRays({ settings: propsSettings }: Volumetri
         settings.lightPositionY!,
         settings.lightPositionZ!
       ));
+
+      // Manage Blur PostProcess based on settings.blur
+      if (settings.blur! > 0.001) { // Add blur if value is meaningful
+        if (!blurPostProcessRef.current) {
+          // Create blur post process (horizontal blur for simplicity)
+          // The "kernel" parameter determines the strength of the blur.
+          // Larger kernel sizes = more blur. Max is usually 64 or 128.
+          // Direction is a Vector2, (1,0) for horizontal, (0,1) for vertical.
+          // Options can be a number (ratio) or PostProcessOptions.
+          blurPostProcessRef.current = new BABYLON.BlurPostProcess(
+            "blur", 
+            new BABYLON.Vector2(1, 0), // Horizontal blur
+            settings.blur! * 64, // Kernel size - adjust multiplier as needed
+            1.0, // Options - Post-process ratio
+            camera, 
+            BABYLON.Texture.BILINEAR_SAMPLINGMODE, 
+            engine, 
+            true // Reusable
+          );
+        } else {
+          // Update existing blur kernel
+          blurPostProcessRef.current.kernel = settings.blur! * 64; // Adjust multiplier as needed
+        }
+      } else { // If blur is 0 or very small, remove the blur effect
+        if (blurPostProcessRef.current) {
+          blurPostProcessRef.current.dispose(camera);
+          blurPostProcessRef.current = null;
+        }
+      }
     }
     
     updateDynamicElements(); // Initial call
@@ -213,6 +244,10 @@ export default function VolumetricGodRays({ settings: propsSettings }: Volumetri
       window.removeEventListener('resize', resizeHandler)
       engine.stopRenderLoop()
       
+      if (blurPostProcessRef.current) { // Dispose blur on cleanup
+        blurPostProcessRef.current.dispose(camera);
+        blurPostProcessRef.current = null;
+      }
       if (vls1) {
         vls1.dispose(camera);
       }
