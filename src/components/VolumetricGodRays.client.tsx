@@ -60,18 +60,23 @@ export default function VolumetricGodRays({ settings: propsSettings }: Volumetri
 
       if (typeof defaultValue === 'number') {
         if (currentValue === undefined || currentValue === null || isNaN(Number(currentValue))) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           (merged as any)[key] = defaultValue; 
         } else {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           (merged as any)[key] = Number(currentValue);
         }
       } else if (typeof defaultValue === 'boolean') {
         if (currentValue === undefined || currentValue === null) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           (merged as any)[key] = defaultValue;
         } else {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           (merged as any)[key] = Boolean(currentValue);
         }
       } else if (typeof defaultValue === 'string') {
         if (currentValue === undefined || currentValue === null) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           (merged as any)[key] = defaultValue;
         } else {
           const strValue = String(currentValue).trim();
@@ -84,6 +89,7 @@ export default function VolumetricGodRays({ settings: propsSettings }: Volumetri
           } else if (key === 'lightColor' && strValue === '') {
             merged.lightColor = defaultSettings.lightColor!; // Fallback to default if empty
           } else {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             (merged as any)[key] = strValue; 
           }
         }
@@ -191,6 +197,8 @@ export default function VolumetricGodRays({ settings: propsSettings }: Volumetri
         settings.lightPositionZ!
       ));
 
+      vls1.useDiffuseColor = true; // False as default
+
       // Manage Blur PostProcess based on settings.blur
       if (settings.blur! > 0.001) { // Add blur if value is meaningful
         if (!blurPostProcessRef.current) {
@@ -262,6 +270,59 @@ export default function VolumetricGodRays({ settings: propsSettings }: Volumetri
       engine.dispose(); // Dispose engine
     }
   }, [settings]) // useEffect depends on the sanitized settings object
+
+  // Apply developer settings that might affect the scene or engine globally
+  useEffect(() => {
+    if (!canvasRef.current) return;
+    const engine = BABYLON.Engine.LastCreatedEngine; // Get existing engine
+    const scene = engine?.scenes[0]; // Get existing scene
+
+    if (engine && scene) {
+      // Wireframe
+      if (settings.devWireframe) {
+        scene.forceWireframe = true;
+      } else {
+        scene.forceWireframe = false;
+      }
+
+      // Bounding Boxes (example for lightEmitterMesh, assuming it exists and is accessible)
+      // This needs to be handled more carefully if lightEmitterMesh is not always present
+      // or if other meshes also need their bounding boxes toggled.
+      // For now, this illustrates the concept. A more robust solution would manage mesh references.
+      const lightEmitterMesh = scene.getMeshByName("lightEmitter");
+      if (lightEmitterMesh) {
+        lightEmitterMesh.showBoundingBox = !!settings.devBoundingBoxes;
+      }
+
+      // Gizmos (Placeholder - GizmoManager setup is more involved)
+      // if (settings.devGizmos) {
+      //   if (!scene.gizmoManager) {
+      //     scene.gizmoManager = new BABYLON.GizmoManager(scene);
+      //     scene.gizmoManager.positionGizmoEnabled = true;
+      //     scene.gizmoManager.rotationGizmoEnabled = true;
+      //     scene.gizmoManager.scaleGizmoEnabled = true;
+      //     scene.gizmoManager.boundingBoxGizmoEnabled = true; 
+      //   }
+      //   if (lightEmitterMesh) {
+      //     scene.gizmoManager.attachToMesh(lightEmitterMesh);
+      //   }
+      // } else {
+      //   if (scene.gizmoManager) {
+      //     scene.gizmoManager.dispose();
+      //     (scene as any).gizmoManager = null; // Clear it
+      //   }
+      // }
+
+      // Log FPS
+      // This is a bit conceptual for a toggle; usually, you'd log it continuously or on demand.
+      // A simple way to show FPS is to use the Inspector, but for programmatic logging:
+      if (settings.devLogFps) {
+        // This will log to console when devLogFps is true and settings change.
+        // For continuous logging, you'd use scene.onBeforeRenderObservable or similar.
+        console.log("Current FPS:", engine.getFps().toFixed(2));
+      }
+    }
+  }, [settings.devWireframe, settings.devBoundingBoxes, settings.devGizmos, settings.devLogFps]); // Re-run if any dev setting changes
 
   return (
     <div

@@ -1,0 +1,27 @@
+docker run -p 9000:9000 -p 9001:9001 --name minio-test -e "MINIO_ROOT_USER=minioadmin" -e "MINIO_ROOT_PASSWORD=minioadmin" minio/minio server /data --console-address ":9001"
+Unable to find image 'minio/minio:latest' locally
+latest: Pulling from minio/minio
+9030282a33d3: Download complete 
+32bd409fac3e: Download complete 
+3ae83705a716: Download complete 
+e3310e0211c0: Download complete 
+b2ef0aec0c61: Download complete 
+603794b1a60e: Download complete 
+a6c6d2950a50: Download complete 
+63c77d8c06af: Download complete 
+941eef446645: Download complete 
+b51042a87320: Download complete 
+Digest: sha256:a1ea29fa28355559ef137d71fc570e508a214ec84ff8083e39bc5428980b015e
+Status: Downloaded newer image for minio/minio:latest
+INFO: Formatting 1st pool, 1 set(s), 1 drives per set.
+INFO: WARNING: Host local has more than 0 drives of set. A host failure will result in data becoming unavailable.
+MinIO Object Storage Server
+Copyright: 2015-2025 MinIO, Inc.
+License: GNU AGPLv3 - https://www.gnu.org/licenses/agpl-3.0.html
+Version: RELEASE.2025-04-22T22-12-26Z (go1.24.2 linux/arm64)
+
+API: http://172.17.0.3:9000  http://127.0.0.1:9000 
+WebUI: http://172.17.0.3:9001 http://127.0.0.1:9001  
+
+Docs: https://docs.min.io
+WARN: Detected default credentials 'minioadmin:minioadmin', we recommend that you change these values with 'MINIO_ROOT_USER' and 'MINIO_ROOT_PASSWORD' environment variables

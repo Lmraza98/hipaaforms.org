@@ -277,15 +277,27 @@ export default function GodRaysRemote({ settings: propsSettings, onSettingsChang
     } else if (type === 'range' || type === 'number') {
       processedValue = parseFloat(value);
     } else {
-      processedValue = value;
+      processedValue = value; // For select elements like lightShape
     }
     
-    const newSettingUpdate = { 
+    const newSettingUpdate: Partial<GodRaysSettings> = {
       [name]: processedValue,
-      preset: (name === 'preset' && processedValue !== 'none') ? processedValue as GodRaysSettings['preset'] : 'none'
-    } as Partial<GodRaysSettings>; 
+    };
 
-    setInternalSettings(prev => ({...prev, ...newSettingUpdate}));
+    // Developer toggles should only change their own state and not affect the preset.
+    const isDevControl = ['devWireframe', 'devBoundingBoxes', 'devGizmos', 'devLogFps'].includes(name);
+
+    // If the control being changed is NOT a developer toggle,
+    // then changing it implies a custom configuration, so set preset to 'none'.
+    // The 'preset' dropdown and 'lightColor' input have their own dedicated handlers
+    // (handlePresetChange and handleColorChange) which manage their preset logic.
+    if (!isDevControl) {
+      newSettingUpdate.preset = 'none';
+    }
+    // If it IS a dev control, newSettingUpdate.preset remains undefined here,
+    // so when merged, it will not alter the existing internalSettings.preset.
+
+    setInternalSettings(prev => ({ ...prev, ...newSettingUpdate }));
     onSettingsChangeRef.current(newSettingUpdate);
   };
 

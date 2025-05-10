@@ -1,0 +1,12 @@
+{
+  "extends": "../tsconfig.json", 
+  "compilerOptions": {
+    "noEmit": false,           
+    "module": "ESNext",        
+    "outDir": "./out",         
+    "declaration": false       
+  },
+  "include": [
+    "./assign_user_to_org.mts" 
+  ]
+} 

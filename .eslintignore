@@ -1,0 +1,10 @@
+# Ignore generated Prisma client
+src/generated/prisma
+
+# Next.js specific
+.next
+node_modules
+
+# Other common ignores
+coverage
+.turbo 
