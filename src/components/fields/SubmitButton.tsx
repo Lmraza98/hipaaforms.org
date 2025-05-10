@@ -1,5 +1,5 @@
 import React, { ChangeEvent } from 'react';
-import { FormFieldDefinition, SubmitButtonFieldDefinition, ValidatorFn } from '@/app/forms/[formId]/builder/FormBuilder.client'; // Adjust path
+import { SubmitButtonFieldDefinition, ValidatorFn } from '@/app/forms/[formId]/builder/types'; // Adjust path
 
 export const Preview: React.FC<{ fieldDef: SubmitButtonFieldDefinition }> = ({ fieldDef }) => {
   // In builder preview, it's just a visual button.
@@ -13,7 +13,7 @@ export const Preview: React.FC<{ fieldDef: SubmitButtonFieldDefinition }> = ({ f
 
 export const Settings: React.FC<{
   fieldDef: SubmitButtonFieldDefinition;
-  onPropertyChange: (property: keyof SubmitButtonFieldDefinition, value: any) => void;
+  onPropertyChange: (property: keyof SubmitButtonFieldDefinition, value: unknown) => void;
 }> = ({ fieldDef, onPropertyChange }) => {
   const handleButtonTextChange = (e: ChangeEvent<HTMLInputElement>) => {
     onPropertyChange('buttonText', e.target.value);
@@ -37,8 +37,12 @@ export const Settings: React.FC<{
 };
 
 // SubmitButtons typically don't have data validators or map to a schema input type
-export const getValidators = (fieldDef: SubmitButtonFieldDefinition): { onChange?: ValidatorFn } => {
+export const getValidators = (): { onChange?: ValidatorFn } => {
   return {}; // No validators for SubmitButton
 };
+// export const getValidators = (fieldDef: SubmitButtonFieldDefinition): { onChange?: ValidatorFn } => {
+//     return {}; // No validators for SubmitButton
+// };
 
-export const mapToSchemaType = (fieldDef: SubmitButtonFieldDefinition): string => 'submit'; // Or handle as non-input in backend 
+export const mapToSchemaType = (): string => 'submit'; // Or handle as non-input in backend 
+// export const mapToSchemaType = (fieldDef: SubmitButtonFieldDefinition): string => 'submit'; // Or handle as non-input in backend 

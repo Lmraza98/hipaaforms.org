@@ -5,6 +5,7 @@ import "./globals.css";
 import { Analytics } from "@vercel/analytics/next";
 import { GoogleAnalytics } from "@next/third-parties/google";
 import TrpcProvider from "./_trpc/Provider";
+import ClientSessionProvider from './components/ClientSessionProvider'; // Adjust path as needed
 
 const inter = Inter({
   subsets: ['latin'],
@@ -29,9 +30,11 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${inter.variable} ${geistMono.variable} scroll-smooth`}>
       <body className={`${inter.variable} antialiased`}>
-        <TrpcProvider>
-          {children}
-        </TrpcProvider>
+        <ClientSessionProvider>
+          <TrpcProvider>
+            {children}
+          </TrpcProvider>
+        </ClientSessionProvider>
         <Analytics />
         <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID ?? ""} />
       </body>

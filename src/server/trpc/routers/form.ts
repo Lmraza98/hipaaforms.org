@@ -3,7 +3,8 @@ import { protectedProcedure, router } from '../trpc';
 import { prisma } from '@/server/db'; // Assuming prisma client is exported from @/server/db
 import { TRPCError } from '@trpc/server';
 
-// Define UserRole enum based on provided details
+// Define UserRole enum based on provided details   
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const UserRoleSchema = z.enum(['OWNER', 'ADMIN', 'EDITOR', 'VIEWER']);
 export type UserRole = z.infer<typeof UserRoleSchema>;
 

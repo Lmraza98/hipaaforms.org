@@ -1,6 +1,5 @@
 import React, { ChangeEvent } from 'react';
-import { FormFieldDefinition, HeadingFieldDefinition } from '@/app/forms/[formId]/builder/FormBuilder.client'; // Adjust path
-import { ValidatorFn } from '@/app/forms/[formId]/builder/FormBuilder.client'; // Adjust path
+import { HeadingFieldDefinition, ValidatorFn } from '@/app/forms/[formId]/builder/types'; // Adjust path
 
 export const Preview: React.FC<{ fieldDef: HeadingFieldDefinition }> = ({ fieldDef }) => {
   const Tag = fieldDef.level || 'h2';
@@ -10,7 +9,7 @@ export const Preview: React.FC<{ fieldDef: HeadingFieldDefinition }> = ({ fieldD
 
 export const Settings: React.FC<{
   fieldDef: HeadingFieldDefinition;
-  onPropertyChange: (property: keyof HeadingFieldDefinition, value: any) => void;
+  onPropertyChange: (property: keyof HeadingFieldDefinition, value: unknown) => void;
 }> = ({ fieldDef, onPropertyChange }) => {
   const handleLevelChange = (e: ChangeEvent<HTMLSelectElement>) => {
     onPropertyChange('level', e.target.value as HeadingFieldDefinition['level']);
@@ -40,8 +39,12 @@ export const Settings: React.FC<{
 
 // No validators for Heading
 // Headings typically don't have data validators or map to a schema input type
-export const getValidators = (fieldDef: HeadingFieldDefinition): { onChange?: ValidatorFn } => {
+export const getValidators = (): { onChange?: ValidatorFn } => {
   return {}; // No validators for Heading
 };
+// export const getValidators = (fieldDef: HeadingFieldDefinition): { onChange?: ValidatorFn } => {
+//     return {}; // No validators for Heading
+//   };
 
-export const mapToSchemaType = (fieldDef: HeadingFieldDefinition): string => 'heading'; // Or handle as non-input in backend 
+export const mapToSchemaType = (): string => 'heading'; // Or handle as non-input in backend 
+// export const mapToSchemaType = (fieldDef: HeadingFieldDefinition): string => 'heading'; // Or handle as non-input in backend 

@@ -1,5 +1,5 @@
 import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route"; // Adjust path if necessary
+import { authOptions } from '@/lib/auth'; // Import authOptions from the new location
 import { redirect } from 'next/navigation';
 import CreateFormButton from "./CreateFormButton.client"; // Import the new button
 import type { Session } from "next-auth"; // For typing session user more accurately

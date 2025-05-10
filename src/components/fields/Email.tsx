@@ -1,6 +1,6 @@
 import React, { ChangeEvent } from 'react';
 import { AnyFieldApi } from '@tanstack/react-form';
-import { EmailFieldDefinition, ValidatorFn } from '@/app/forms/[formId]/builder/FormBuilder.client'; // Adjust path
+import { EmailFieldDefinition, ValidatorFn } from '@/app/forms/[formId]/builder/types'; // Adjust path
 
 const getInputProps = (fieldDef: EmailFieldDefinition, fieldApi?: AnyFieldApi) => {
   return fieldApi ? {
@@ -24,8 +24,8 @@ export const Preview: React.FC<{ fieldDef: EmailFieldDefinition; fieldApi?: AnyF
 
 export const Settings: React.FC<{
   fieldDef: EmailFieldDefinition;
-  onPropertyChange: (property: keyof EmailFieldDefinition, value: any) => void;
-}> = ({ fieldDef, onPropertyChange }) => {
+  onPropertyChange: (property: keyof EmailFieldDefinition, value: unknown) => void;
+}> = () => {
   return (
     <div>
       <p className="text-xs text-gray-500 mt-2">No specific settings for Email beyond common properties.</p>
@@ -64,4 +64,5 @@ export const getValidators = (fieldDef: EmailFieldDefinition): { onChange?: Vali
   return { onChange: combinedOnChange };
 };
 
-export const mapToSchemaType = (fieldDef: EmailFieldDefinition): string => 'email'; 
+export const mapToSchemaType = (): string => 'email'; 
+// export const mapToSchemaType = (fieldDef: EmailFieldDefinition): string => 'email'; 

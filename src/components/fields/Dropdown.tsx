@@ -1,6 +1,6 @@
 import React, { ChangeEvent } from 'react';
 import { AnyFieldApi } from '@tanstack/react-form';
-import { FormFieldDefinition, DropdownFieldDefinition, ValidatorFn } from '@/app/forms/[formId]/builder/FormBuilder.client'; // Adjust path
+import { DropdownFieldDefinition, ValidatorFn } from '@/app/forms/[formId]/builder/types'; // Adjust path
 
 const getInputProps = (fieldDef: DropdownFieldDefinition, fieldApi?: AnyFieldApi) => {
   return fieldApi ? {
@@ -28,7 +28,7 @@ export const Preview: React.FC<{ fieldDef: DropdownFieldDefinition; fieldApi?: A
 
 export const Settings: React.FC<{
   fieldDef: DropdownFieldDefinition;
-  onPropertyChange: (property: keyof DropdownFieldDefinition, value: any) => void;
+  onPropertyChange: (property: keyof DropdownFieldDefinition, value: unknown) => void;
 }> = ({ fieldDef, onPropertyChange }) => {
   const handleOptionsChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
     onPropertyChange('options', e.target.value.split('\n'));

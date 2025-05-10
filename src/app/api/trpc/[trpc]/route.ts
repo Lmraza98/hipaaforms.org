@@ -8,11 +8,11 @@ import { createContext } from '@/server/trpc/trpc';
  * This wraps the `createTRPCContext` helper and provides the required context for the tRPC API when
  * handling a HTTP request context.
  */
-const createContextHandler = async (req: NextRequest) => {
-  // Create context based on incoming request
-  // We don't have the `res` object here as in pages router, but fetchRequestHandler handles it
-  return createContext({ req, resHeaders: req.headers });
-};
+// const createContextHandler = async (req: NextRequest) => {
+//   // Create context based on incoming request
+//   // We don't have the `res` object here as in pages router, but fetchRequestHandler handles it
+//   return createContext({ req, resHeaders: req.headers });
+// };
 
 const handler = (req: NextRequest) =>
   fetchRequestHandler({

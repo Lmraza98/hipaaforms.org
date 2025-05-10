@@ -1,5 +1,5 @@
-import NextAuth, { DefaultSession, DefaultUser } from "next-auth";
-import { JWT, DefaultJWT } from "next-auth/jwt";
+import { DefaultSession } from "next-auth";
+import { DefaultJWT } from "next-auth/jwt";
 import { Role } from "@prisma/client"; // Assuming Role enum is exported from your Prisma client
 
 declare module "next-auth" {

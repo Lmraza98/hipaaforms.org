@@ -1,6 +1,6 @@
 import React, { ChangeEvent } from 'react';
 import { AnyFieldApi } from '@tanstack/react-form';
-import { FormFieldDefinition, ShortTextFieldDefinition, ValidatorFn } from '@/app/forms/[formId]/builder/FormBuilder.client'; // Adjust path as needed
+import { ShortTextFieldDefinition, ValidatorFn } from '@/app/forms/[formId]/builder/types'; // Adjust path as needed
 
 // Helper for common input props
 const getInputProps = (fieldDef: ShortTextFieldDefinition, fieldApi?: AnyFieldApi) => {
@@ -25,8 +25,8 @@ export const Preview: React.FC<{ fieldDef: ShortTextFieldDefinition; fieldApi?: 
 
 export const Settings: React.FC<{
   fieldDef: ShortTextFieldDefinition;
-  onPropertyChange: (property: keyof ShortTextFieldDefinition, value: any) => void;
-}> = ({ fieldDef, onPropertyChange }) => {
+  onPropertyChange: (property: keyof ShortTextFieldDefinition, value: unknown) => void;
+}> = () => {
   // Basic settings: Label and Placeholder are handled by PropertiesPanel directly for now
   // This component would include settings specific to ShortText if any arise.
   return (
@@ -61,4 +61,5 @@ export const getValidators = (fieldDef: ShortTextFieldDefinition): { onChange?: 
   return {}; // No validators if not required
 };
 
-export const mapToSchemaType = (fieldDef: ShortTextFieldDefinition): string => 'text'; 
+// export const mapToSchemaType = (fieldDef: ShortTextFieldDefinition): string => 'text'; 
+export const mapToSchemaType = (): string => 'text'; 

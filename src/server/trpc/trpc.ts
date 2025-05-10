@@ -6,7 +6,7 @@ import { ZodError } from 'zod';
 
 // Imports for NextAuth.js session
 import { getServerSession } from 'next-auth/next';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route'; // Adjust path if your authOptions are elsewhere
+import { authOptions } from '@/lib/auth'; // Import authOptions from the new location
 import type { Session } from 'next-auth'; // To type the session object
 
 // Updated User interface to align with NextAuth session user

@@ -3,25 +3,22 @@ import { notFound } from 'next/navigation';
 import { TRPCError } from '@trpc/server';
 import { appRouter } from '@/server/trpc/routers';
 import { getServerSession } from 'next-auth/next';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { authOptions } from '@/lib/auth'; // Import authOptions from the new location
 import type { Session } from 'next-auth';
 import FormBuilderClient from './FormBuilder.client'; 
 // import { User } from '@/server/trpc/trpc'; // Consider importing User type for context
 import { type FormFieldDefinition } from './types'; // Ensure this is the correct import for the client component's expected type
 import { z } from 'zod';
 import { FormFieldOptionsSchema } from '@/server/trpc/routers/form';
-
 // Infer the type from the Zod schema
 type FormFieldOptionsType = z.infer<typeof FormFieldOptionsSchema>;
 
-interface FormBuilderPageProps {
-  params: {
-    formId: string;
-  };
-}
-
-export default async function FormBuilderPage({ params }: FormBuilderPageProps) {
-  const { formId } = params;
+export default async function FormBuilderPage({
+    params,
+}: {
+    params: Promise<{ formId: string }> 
+}) {
+const { formId } = await params;
 
   // Use the imported Session type for better type safety if next-auth.d.ts is correctly set up
   const session: Session | null = await getServerSession(authOptions);
