@@ -1,11 +1,11 @@
 'use client';
 
-import React, { DragEvent } from 'react';
+import React from 'react';
 import type { FormFieldDefinition } from './types';
 
 // Palette component remains the same as it's mostly UI and sets data for drag operations
 export const Palette = () => { 
-  const onDragStart = (event: DragEvent, fieldType: FormFieldDefinition['type'], label: string) => {
+  const onDragStart = (event: React.DragEvent<Element>, fieldType: FormFieldDefinition['type'], label: string) => {
     event.dataTransfer.setData('application/form-field-type', fieldType);
     event.dataTransfer.setData('application/form-field-label', label);
     event.dataTransfer.effectAllowed = 'move';

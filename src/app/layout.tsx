@@ -5,7 +5,8 @@ import "./globals.css";
 import { Analytics } from "@vercel/analytics/next";
 import { GoogleAnalytics } from "@next/third-parties/google";
 import TrpcProvider from "./_trpc/Provider";
-import ClientSessionProvider from './components/ClientSessionProvider'; // Adjust path as needed
+import ClientSessionProvider from '../components/landing-page/ClientSessionProvider';
+import Navigation from "../components/landing-page/Navigation.client"; // Import the new Navigation component
 
 const inter = Inter({
   subsets: ['latin'],
@@ -32,7 +33,10 @@ export default function RootLayout({
       <body className={`${inter.variable} antialiased`}>
         <ClientSessionProvider>
           <TrpcProvider>
-            {children}
+            <Navigation />
+            <main>
+              {children}
+            </main>
           </TrpcProvider>
         </ClientSessionProvider>
         <Analytics />

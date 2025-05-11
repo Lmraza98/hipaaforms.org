@@ -1,15 +1,14 @@
 'use client';
 
 import React, { ChangeEvent } from 'react';
-import { getFieldModule } from '@/components/fields';
-import type { FormFieldDefinition } from './types';
+import { getFieldModule } from '@/components/form-builder/fields';
+import { useFormBuilderContext } from './context';
 
-interface PropertiesPanelProps {
-  selectedFieldDef: FormFieldDefinition;
-  onPropertyChange: (propertyKey: string, value: unknown) => void; 
-}
+export const PropertiesPanel = () => {
+  const { selectedFieldDef, handlePropertyChange: onPropertyChange } = useFormBuilderContext();
 
-export const PropertiesPanel = ({ selectedFieldDef, onPropertyChange }: PropertiesPanelProps) => {
+  if (!selectedFieldDef) return null;
+
   const { Settings: FieldSettingsComponent } = getFieldModule(selectedFieldDef.type);
 
   const handleLabelChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -55,8 +54,6 @@ export const PropertiesPanel = ({ selectedFieldDef, onPropertyChange }: Properti
       (selectedFieldDef as { validatorsConfig?: { required?: boolean } }).validatorsConfig) {
     isCurrentlyRequired = !!(selectedFieldDef as { validatorsConfig?: { required?: boolean } }).validatorsConfig?.required;
   }
-
-  if (!selectedFieldDef) return null; // Should not happen if panel is shown
 
   return (
     <div className="flex-grow flex flex-col">

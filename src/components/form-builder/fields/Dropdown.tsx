@@ -1,6 +1,6 @@
 import React, { ChangeEvent } from 'react';
 import { AnyFieldApi } from '@tanstack/react-form';
-import { DropdownFieldDefinition, ValidatorFn } from '@/app/forms/[formId]/builder/types'; // Adjust path
+import { DropdownFieldDefinition, ValidatorFn } from '@/components/form-builder/types'; 
 
 const getInputProps = (fieldDef: DropdownFieldDefinition, fieldApi?: AnyFieldApi) => {
   return fieldApi ? {
@@ -15,7 +15,7 @@ const getInputProps = (fieldDef: DropdownFieldDefinition, fieldApi?: AnyFieldApi
   };
 };
 
-const commonInputClasses = "w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500";
+const commonInputClasses = "w-full px-3 py-2 rounded  text-gray-700 text-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500";
 
 export const Preview: React.FC<{ fieldDef: DropdownFieldDefinition; fieldApi?: AnyFieldApi }> = ({ fieldDef, fieldApi }) => {
   return (

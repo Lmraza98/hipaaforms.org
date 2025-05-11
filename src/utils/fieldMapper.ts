@@ -1,5 +1,5 @@
-import { FormFieldDefinition } from '@/app/forms/[formId]/builder/types';
-import { getFieldModule } from '@/components/fields';
+import { FormFieldDefinition } from '@/components/form-builder/types';
+import { getFieldModule } from '@/components/form-builder/fields';
 
 // Define the allowed backend field types - REVERTED TO ORIGINAL RESTRICTED LIST
 export const BACKEND_FIELD_TYPES = [

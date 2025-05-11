@@ -1,6 +1,6 @@
 import React, { ChangeEvent } from 'react';
 import { AnyFieldApi } from '@tanstack/react-form';
-import { ShortTextFieldDefinition, ValidatorFn } from '@/app/forms/[formId]/builder/types'; // Adjust path as needed
+import { ShortTextFieldDefinition, ValidatorFn } from '@/components/form-builder/types';
 
 // Helper for common input props
 const getInputProps = (fieldDef: ShortTextFieldDefinition, fieldApi?: AnyFieldApi) => {
@@ -17,7 +17,7 @@ const getInputProps = (fieldDef: ShortTextFieldDefinition, fieldApi?: AnyFieldAp
   };
 };
 
-const commonInputClasses = "w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500";
+const commonInputClasses = "w-full px-3 py-2 rounded text-sm text-gray-700 focus:ring-1 focus:ring-blue-500 focus:border-blue-500";
 
 export const Preview: React.FC<{ fieldDef: ShortTextFieldDefinition; fieldApi?: AnyFieldApi }> = ({ fieldDef, fieldApi }) => {
   return <input type="text" {...getInputProps(fieldDef, fieldApi)} className={commonInputClasses} placeholder={fieldDef.placeholder} />;

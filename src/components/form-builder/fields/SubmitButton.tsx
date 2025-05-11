@@ -1,5 +1,5 @@
 import React, { ChangeEvent } from 'react';
-import { SubmitButtonFieldDefinition, ValidatorFn } from '@/app/forms/[formId]/builder/types'; // Adjust path
+import { SubmitButtonFieldDefinition, ValidatorFn } from '@/components/form-builder/types';
 
 export const Preview: React.FC<{ fieldDef: SubmitButtonFieldDefinition }> = ({ fieldDef }) => {
   // In builder preview, it's just a visual button.

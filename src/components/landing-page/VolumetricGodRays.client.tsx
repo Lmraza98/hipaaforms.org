@@ -10,34 +10,34 @@ import type { GodRaysSettings } from './GodRaysRemote.client';
 
 // Define default settings, ensuring all properties from GodRaysSettings are covered
 const defaultSettings: GodRaysSettings = {
-  exposure: 0.3,
-  decay: 1,
+  exposure: 1,
+  decay: .98,
   density: 1,
-  weight: 1,
-  samples: 100,
+  weight: .59,
+  samples: 160,
   invert: false,
-  lightColor: '#002E70',
-  lightPositionX: 0,
-  lightPositionY: 0,
-  lightPositionZ: 5, // Default VLS source Z
-  lightRadius: 0.5, // This is a general setting, VLS uses the mesh
-  blur: 0, // General setting, not directly used by this VLS setup
+  lightColor: '#00060F',
+  lightPositionX: 20,
+  lightPositionY: 7.1,
+  lightPositionZ: -7.1, // Default VLS source Z
+  lightRadius: 0.4, // This is a general setting, VLS uses the mesh
+  blur: .84, // General setting, not directly used by this VLS setup
 
   // Mesh specific settings
-  meshPositionX: 0,
-  meshPositionY: 0,
-  meshPositionZ: 0, // Default mesh Z (relative to its coordinate system/parent)
-  meshRadius: 0.1,
+  meshPositionX: 1.7,
+  meshPositionY: .4,
+  meshPositionZ: -20, // Default mesh Z (relative to its coordinate system/parent)
+  meshRadius: 0.4,
   lightShape: 'sphere',
 
   // Post-processing specific
-  postProcessRatio: 0.2,
-  passRatio: 0.4,
+  postProcessRatio: 0.4,
+  passRatio: 0.2,
 
   // Control/UI related
   enabled: true, // Assuming default is enabled if component is rendered
   animate: false,
-  colorIntensity: 1.0,
+  colorIntensity: 1.5,
 };
 
 interface VolumetricGodRaysProps {

@@ -10,7 +10,6 @@ export default function TrpcProvider({ children }: { children: React.ReactNode }
     defaultOptions: {
       queries: {
         staleTime: 5 * 1000, // 5 seconds
-        // You can set other default options here
       },
     },
   }));

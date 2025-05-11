@@ -1,7 +1,7 @@
-import { useState, useCallback, useRef, DragEvent } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { trpc } from '@/trpc/client';
-import { FormFieldDefinition } from '@/app/forms/[formId]/builder/types'; // Assuming types are here
-import { getDefaultFieldDefinition } from '@/components/fields';
+import { FormFieldDefinition, FormValues } from '@/components/form-builder/types'; // Assuming types are here
+import { getDefaultFieldDefinition } from '@/components/form-builder/fields';
 import type { UserRole } from '@/server/trpc/routers/form'; // Import UserRole
 import type { FormApi } from '@tanstack/react-form'
 import { mapToInputSchema } from '@/utils/fieldMapper'; // Corrected path
@@ -18,7 +18,6 @@ let fieldIdCounter = 1;
 const getNewFieldId = (type: FormFieldDefinition['type']) => `${type.toLowerCase().replace(/\s+/g, '_')}_new_${fieldIdCounter++}`; // Added _new_ to distinguish from potentially existing ids
 
 // FormValues will be a Record of fieldId to its value type
-export type FormValues = Record<string, unknown>;
 
 // type FormBuilderForm = ReturnType<typeof useForm<FormValues>>
 
@@ -40,7 +39,9 @@ interface UseFormBuilderProps {
         undefined, 
         undefined, 
         unknown
-    >
+    >;
+    userRole: string;          // ← add this line
+
 }
 
 interface FormUpdateMutationSuccessData {
@@ -169,7 +170,7 @@ export function useFormBuilder({
   }, [formId, formName, formDescription, fields, currentVersion, updateFormMutation, createFormMutation]);
   
   // Drag Handlers
-  const handleDragStartFromList = useCallback((event: DragEvent, fieldDef: FormFieldDefinition, index: number) => {
+  const handleDragStartFromList = useCallback((event: React.DragEvent<Element>, fieldDef: FormFieldDefinition, index: number) => {
     draggedItem.current = fieldDef;
     draggedItemIndex.current = index;
     setDraggedItemId(fieldDef.id);
@@ -185,7 +186,7 @@ export function useFormBuilder({
     setDraggedItemId(null);
   }, []);
 
-  const handleDragOverList = useCallback((event: DragEvent, fieldListRefCurrent: HTMLDivElement | null) => {
+  const handleDragOverList = useCallback((event: React.DragEvent<Element>, fieldListRefCurrent: HTMLDivElement | null) => {
     event.preventDefault();
     event.dataTransfer.dropEffect = 'move';
     
@@ -211,7 +212,7 @@ export function useFormBuilder({
     }
   }, [fields.length, dragOverIndex]);
   
-  const handleDropOnList = useCallback((event: DragEvent) => {
+  const handleDropOnList = useCallback((event: React.DragEvent<Element>) => {
     event.preventDefault();
     const typeFromPalette = event.dataTransfer.getData('application/form-field-type') as FormFieldDefinition['type'];
     const labelFromPalette = event.dataTransfer.getData('application/form-field-label');
