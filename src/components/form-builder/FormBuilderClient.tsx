@@ -1,10 +1,10 @@
 'use client';
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useForm } from '@tanstack/react-form';
-import type { FormFieldDefinition, FormValues } from '../types';
-import { Palette } from './Palette';
-import { PropertiesPanel } from './PropertiesPanel';
-import { FieldCanvas } from './FieldCanvas';
+import type { FormFieldDefinition, FormValues } from './types';
+import { Palette } from './ui/Palette';
+import { PropertiesPanel } from './ui/PropertiesPanel';
+import { FieldCanvas } from './ui/FieldCanvas';
 import { useFormBuilderContext } from './context';
 import { SideDrawer } from '@/components/SideDrawer';
 

@@ -1,6 +1,6 @@
 'use client';
 import React, { useRef, useCallback, useMemo } from 'react';
-import { useFormBuilderContext } from './context';
+import { useFormBuilderContext } from '../context';
 import type { FormFieldDefinition, FormValues, TypedFormApi, HeadingFieldDefinition } from '../types';
 import { useClickOutside } from '../hooks/useClickOutside';
 import { usePrevious } from '../hooks/usePrevious';

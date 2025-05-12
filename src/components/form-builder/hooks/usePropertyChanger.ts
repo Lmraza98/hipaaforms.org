@@ -1,6 +1,6 @@
 // hooks/usePropertyChanger.ts
 import { useCallback } from 'react'
-import { useFormBuilderContext } from '../components/context'
+import { useFormBuilderContext } from '../context'
 import type { FormFieldDefinition } from '../types'
 
 /**

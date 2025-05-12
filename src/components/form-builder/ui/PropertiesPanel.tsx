@@ -2,7 +2,7 @@
 
 import React, { ChangeEvent } from 'react';
 import { getFieldModule } from '@/components/form-builder/fields';
-import { useFormBuilderContext } from './context';
+import { useFormBuilderContext } from '../context';
 import { usePropertyChanger } from '../hooks/usePropertyChanger';
 import type { FormFieldDefinition } from '../types';
 

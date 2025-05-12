@@ -1,5 +1,5 @@
 import React from 'react';
-import { FieldItem } from './FieldItem';
+import { FieldItem } from './FieldItem/index';
 import type { FormFieldDefinition, FormValues, TypedFormApi } from '../types';
 import { usePropertyChanger } from '../hooks/usePropertyChanger';
 

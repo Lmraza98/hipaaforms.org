@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { dropIn } from './animations';
+import { dropIn } from '../animations';
 
 interface DropPlaceholderProps {
   position: 'top' | 'between' | 'bottom';

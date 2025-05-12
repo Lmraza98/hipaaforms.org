@@ -2,7 +2,7 @@
 
 import React from 'react';
 import type { FormFieldDefinition } from '../types';
-import { useFormBuilderContext } from './context';
+import { useFormBuilderContext } from '../context';
 
 export const Palette = () => { 
   const { addField } = useFormBuilderContext();

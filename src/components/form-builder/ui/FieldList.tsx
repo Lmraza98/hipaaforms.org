@@ -3,7 +3,7 @@ import { Reorder, AnimatePresence } from 'framer-motion';
 import { TypedFieldItem } from './TypedFieldItem';
 import { DropPlaceholder } from './DropPlaceholder';
 import type { FormFieldDefinition, FormValues, TypedFormApi } from '../types';
-import { fadeUp } from './animations';
+import { fadeUp } from '../animations';
 
 interface FieldListProps {
   fields: FormFieldDefinition[];
