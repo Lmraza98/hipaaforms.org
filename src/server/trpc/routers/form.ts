@@ -55,13 +55,20 @@ const FormUpdateInputSchema = z.object({
 export const formRouter = router({
   // Form Procedures
   create: protectedProcedure
-    .input(FormCreateInputSchema)
+    .input(FormCreateInputSchema.omit({ organizationId: true })) // Remove organizationId from input
     .mutation(async ({ ctx, input }) => {
-      const { name, description, organizationId, fields } = input;
+      const { name, description, fields } = input;
       const userId = ctx.user.id;
+      const organizationId = ctx.user.organizationId;
+
+      if (!organizationId) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "User is not associated with any organization.",
+        });
+      }
 
       // Check if user is part of the organization and has a role that allows form creation
-      // (e.g., OWNER, ADMIN, EDITOR)
       const userOrgMembership = await prisma.userOnOrg.findUnique({
         where: {
           userId_organizationId: {
@@ -70,33 +77,32 @@ export const formRouter = router({
           },
         },
       });
-      console.log("userOrgMembership", JSON.stringify(userOrgMembership, null, 2));
 
-      // if (!userOrgMembership || !["OWNER", "ADMIN", "EDITOR"].includes(userOrgMembership.role)) {
-      //   throw new TRPCError({
-      //     code: "FORBIDDEN",
-      //     message: "You do not have permission to create forms in this organization.",
-      //   });
-      // }
+      if (!userOrgMembership || !["OWNER", "ADMIN", "EDITOR"].includes(userOrgMembership.role)) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "You do not have permission to create forms in this organization.",
+        });
+      }
 
       const form = await prisma.form.create({
         data: {
           name,
           description,
-          userId, // creator of the form
-          organizationId, // associate form with the organization from input
-          version: 1, // Initial version
+          userId,
+          organizationId,
+          version: 1,
           fields: fields && fields.length > 0
             ? {
                 create: fields.map(field => ({
                   order: field.order,
-                  options: field.options, // Prisma expects Json type
+                  options: field.options,
                 })),
               }
             : undefined,
         },
         include: {
-          fields: true, // Return fields with the created form
+          fields: true,
         },
       });
       return form;
@@ -393,17 +399,22 @@ export const formRouter = router({
   createBlank: protectedProcedure
     .input(z.object({
       name: z.string().min(1, "Form name cannot be empty").default("Untitled Form"),
-      organizationId: z.string().cuid("Valid Organization ID is required."),
     }))
     .mutation(async ({ ctx, input }) => {
-      console.log("createBlank input", JSON.stringify(input, null, 2));
-      const { name, organizationId } = input;
+      const { name } = input;
       const userId = ctx.user.id;
+      const organizationId = ctx.user.organizationId;
+
+      if (!organizationId) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "User is not associated with any organization.",
+        });
+      }
 
       // RBAC: Check if user can create forms in this organization
       const userOrgMembership = await prisma.userOnOrg.findUnique({
         where: {
-          // Assuming 'userId_organizationId' is the correct composite key name
           userId_organizationId: {
             userId: userId,
             organizationId: organizationId,
@@ -411,24 +422,21 @@ export const formRouter = router({
         },
       });
 
-      console.log("userOrgMembership", JSON.stringify(userOrgMembership, null, 2));
-
-      // // Assuming 'role' is the correct field name on userOrgMembership
-      // if (!userOrgMembership || !["OWNER", "ADMIN", "EDITOR"].includes(userOrgMembership.role as UserRole)) {
-      //   throw new TRPCError({
-      //     code: "FORBIDDEN",
-      //     message: "You do not have permission to create forms in this organization.",
-      //   });
-      // }
+      if (!userOrgMembership || !["OWNER", "ADMIN", "EDITOR"].includes(userOrgMembership.role)) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "You do not have permission to create forms in this organization.",
+        });
+      }
 
       const newForm = await prisma.form.create({
         data: {
           name,
           userId,
-          organizationId: organizationId, // Reverted to use organizationId directly
+          organizationId,
           version: 1,
-          description: "", // Default empty description
-          fields: { create: [] }, // Create with no fields
+          description: "",
+          fields: { create: [] },
         },
       });
 

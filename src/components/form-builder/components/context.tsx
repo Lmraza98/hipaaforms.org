@@ -13,7 +13,6 @@ export function FormBuilderProvider({
   initialName,
   initialDescription,
   initialVersion,
-  userRole,
   children,
 }: FormBuilderProviderProps) {
   // 1) create the form instance here
@@ -38,7 +37,6 @@ export function FormBuilderProvider({
   // 2) now pass that `form` into your hook
   const {
     fields,
-    setFields,
     formName,
     setFormName,
     formDescription,
@@ -48,19 +46,16 @@ export function FormBuilderProvider({
     setSelectedFieldDef,
     addField,
     removeField,
-    // reorderField,
     handlePropertyChange,
     saveForm,
     isSaving,
     isCreating,
     dragOverIndex,
-    // draggedItemId,
-    // handleDragStartFromList,
-    // handleDragEndList,
     handleDragOverList,
     handleDropOnList,
     isPreviewMode,
     setIsPreviewMode,
+    setFields,
   } = useFormBuilder({
     formId,
     initialFieldsData,
@@ -68,14 +63,12 @@ export function FormBuilderProvider({
     initialDescription,
     initialVersion,
     form,
-    userRole,
   });
 
   return (
     <FormBuilderContext.Provider
       value={{
         fields,
-        setFields,
         formName,
         setFormName,
         formDescription,
@@ -85,19 +78,16 @@ export function FormBuilderProvider({
         setSelectedFieldDef,
         addField,
         removeField,
-        // reorderField,
         handlePropertyChange,
         saveForm,
         isSaving,
         isCreating,
         dragOverIndex,
-        // draggedItemId,
-        // handleDragStartFromList,
-        // handleDragEndList,
         handleDragOverList,
         handleDropOnList,
         isPreviewMode,
         setIsPreviewMode,
+        setFields,
       }}
     >
       {children}

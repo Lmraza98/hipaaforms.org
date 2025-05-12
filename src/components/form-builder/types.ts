@@ -173,35 +173,26 @@ export type FieldRegistry = {
 };
 
 export interface FormBuilderContextValue {
-  // state
   fields: FormFieldDefinition[];
   formName: string;
+  setFormName: (name: string) => void;
   formDescription: string;
+  setFormDescription: (description: string) => void;
   currentVersion: number;
   selectedFieldDef: FormFieldDefinition | null;
-  isPreviewMode: boolean;
-
-  // setters
-  setFields: React.Dispatch<React.SetStateAction<FormFieldDefinition[]>>;
-  setFormName: (name: string) => void;
-  setFormDescription: (desc: string) => void;
   setSelectedFieldDef: (field: FormFieldDefinition | null) => void;
-  setIsPreviewMode: (isPreview: boolean) => void;
-
-  // actions
-  addField: (type: FormFieldDefinition['type'], label?: string, index?: number) => void;
+  addField: (type: FormFieldDefinition['type'], label?: string, atIndex?: number) => void;
   removeField: (fieldId: string) => void;
   handlePropertyChange: (propertyKey: string, value: unknown) => void;
   saveForm: () => void;
-
-  // UI state
   isSaving: boolean;
   isCreating: boolean;
-
-  // drag/drop
   dragOverIndex: number | null;
-  handleDragOverList: (e: React.DragEvent, ref: HTMLDivElement | null) => void;
-  handleDropOnList: (e: React.DragEvent) => void;
+  handleDragOverList: (event: React.DragEvent<Element>, fieldListRefCurrent: HTMLDivElement | null) => void;
+  handleDropOnList: (event: React.DragEvent<Element>) => void;
+  isPreviewMode: boolean;
+  setIsPreviewMode: (on: boolean) => void;
+  setFields: (newOrder: FormFieldDefinition[]) => void;
 }
 
 export interface FormBuilderProviderProps {

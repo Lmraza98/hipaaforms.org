@@ -14,15 +14,11 @@ export default async function DashboardPage() {
     // return null; // Or a message, but redirect is better
   }
 
-  // Extract organizationId from session if available. 
-  // Your next-auth.d.ts should ensure role and organizationId are part of session.user
-  const userOrganizationId = session.user.organizationId || undefined;
-
   return (
     <div>
       <h1>Dashboard</h1>
       <div style={{ marginBottom: '1rem' }}>
-        <CreateFormButton defaultOrganizationId={userOrganizationId} />
+        <CreateFormButton />
       </div>
       <p>Welcome, this is a protected page.</p>
       {session.user && (
@@ -30,7 +26,7 @@ export default async function DashboardPage() {
           <p>User ID: {session.user.id}</p>
           <p>Email: {session.user.email}</p>
           <p>Role: {session.user.role || "Not assigned"}</p>
-          <p>Organization ID: {userOrganizationId || "Not assigned"}</p>
+          <p>Organization ID: {session.user.organizationId || "Not assigned"}</p>
           <pre style={{ padding: '1rem', borderRadius: '5px' }}>
             {JSON.stringify(session, null, 2)}
           </pre>
