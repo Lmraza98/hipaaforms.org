@@ -1,5 +1,5 @@
 'use client';
-import React, { DragEvent } from 'react';
+import React from 'react';
 import { AnyFieldApi, FormApi, Field } from '@tanstack/react-form';
 import { getFieldModule } from '@/components/form-builder/fields';
 import type { FormFieldDefinition, FieldValidator } from './types';
@@ -22,16 +22,12 @@ function FieldInfo({ field }: FieldInfoProps) {
 
 interface FieldItemProps {
   fieldDef: FormFieldDefinition;
-  index: number;
   selectedFieldDef: FormFieldDefinition | null;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   form: FormApi<FormValues, any, any, any, any, any, any, any, any, unknown>;
   getFieldValidators: (fieldDef: FormFieldDefinition) => { onChange?: FieldValidator<unknown> };
-  handleDragStartFromList: (event: React.DragEvent<Element>, fieldDef: FormFieldDefinition, index: number) => void;
-  handleDragEndList: (event: React.DragEvent<Element>) => void;
   handleFieldClick: (fieldDef: FormFieldDefinition) => void;
   removeField: (fieldId: string) => void;
-  isDragging: boolean;
   formName?: string;
   setFormName?: (name: string) => void;
   onPropertyChange: (propertyKey: string, value: unknown) => void;
@@ -40,15 +36,11 @@ interface FieldItemProps {
 
 const FieldItemComponent = ({ 
   fieldDef, 
-  index, 
   selectedFieldDef, 
   form,
   getFieldValidators, 
-  handleDragStartFromList, 
-  handleDragEndList, 
   handleFieldClick, 
   removeField,
-  isDragging,
   formName,
   setFormName,
   onPropertyChange,
@@ -71,14 +63,10 @@ const FieldItemComponent = ({
     };
     return (
       <div 
-        draggable={!isSystemTitleHeading && !isPreviewMode}
-        onDragStart={(e) => !isSystemTitleHeading && !isPreviewMode && handleDragStartFromList(e, fieldDef, index)}
-        onDragEnd={!isSystemTitleHeading && !isPreviewMode ? handleDragEndList : undefined}
         onClick={() => !isSystemTitleHeading && !isPreviewMode && handleFieldClick(fieldDef)}
         className={`
-          ${!isSystemTitleHeading && !isPreviewMode ? 'cursor-grab' : 'cursor-default'} 
-          ${selectedFieldDef?.id === fieldDef.id && !isSystemTitleHeading && !isPreviewMode ? 'rounded-lg' : ''} 
-          ${isDragging && !isSystemTitleHeading && !isPreviewMode ? 'opacity-50' : ''}
+          ${!isSystemTitleHeading && !isPreviewMode ? 'cursor-pointer' : 'cursor-default'} 
+          ${selectedFieldDef?.id === fieldDef.id && !isSystemTitleHeading && !isPreviewMode ? 'rounded-lg' : ''}
         `}
       >
         <div className={`p-4 rounded-lg bg-white mb-3 ${isPreviewMode ? 'border-transparent' : ''}`}>
@@ -124,14 +112,10 @@ const FieldItemComponent = ({
         const selectedClasses = selectedFieldDef?.id === fieldDef.id && !isSystemTitleHeading && !isPreviewMode ? "ring-2 ring-blue-500" : "";
         return (
           <div
-            draggable={!isSystemTitleHeading && !isPreviewMode}
-            onDragStart={(e) => !isSystemTitleHeading && !isPreviewMode && handleDragStartFromList(e, fieldDef, index)}
-            onDragEnd={!isSystemTitleHeading && !isPreviewMode ? handleDragEndList : undefined}
             onClick={() => !isSystemTitleHeading && !isPreviewMode && handleFieldClick(fieldDef)}
             className={`
-              ${!isSystemTitleHeading && !isPreviewMode ? 'cursor-grab' : 'cursor-default'} 
-              ${selectedFieldDef?.id === fieldDef.id && !isSystemTitleHeading && !isPreviewMode ? 'outline-offset-2 rounded-lg' : ''} 
-              ${isDragging && !isSystemTitleHeading && !isPreviewMode ? 'opacity-50' : ''}
+              ${!isSystemTitleHeading && !isPreviewMode ? 'cursor-pointer' : 'cursor-default'} 
+              ${selectedFieldDef?.id === fieldDef.id && !isSystemTitleHeading && !isPreviewMode ? 'outline-offset-2 rounded-lg' : ''}
             `}
           >
             <div className={`${baseClasses} ${selectedClasses} ${isPreviewMode ? 'border-transparent' : ''}`}>

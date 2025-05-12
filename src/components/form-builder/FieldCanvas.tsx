@@ -1,10 +1,17 @@
 'use client';
 import React, { useRef, useEffect } from 'react';
 import { useForm } from '@tanstack/react-form';
+import { motion, Reorder, AnimatePresence } from 'framer-motion';
 import { FieldItem } from './FieldItem';
 import { getFieldModule } from '@/components/form-builder/fields/index';
 import { useFormBuilderContext } from './context';
 import type { FormFieldDefinition, FieldValidator, FormValues } from './types';
+
+// Standard fade-up animation
+export const fadeUp = {
+  hidden: { opacity: 0, y: 20 },
+  show:   { opacity: 1, y: 0, transition: { duration: 0.6 } },
+};
 
 // Define props for FieldCanvas
 interface FieldCanvasProps {
@@ -25,12 +32,10 @@ export const FieldCanvas = React.memo(({
     dragOverIndex,
     handleDragOverList,
     handleDropOnList,
-    handleDragStartFromList,
-    handleDragEndList,
     removeField,
-    draggedItemId,
     handlePropertyChange,
     isPreviewMode,
+    setFields,
   } = useFormBuilderContext();
 
   const fieldListRef = useRef<HTMLDivElement>(null);
@@ -73,9 +78,6 @@ export const FieldCanvas = React.memo(({
     isSystemGenerated: false,
   };
 
-  // Prepend the dynamic heading to the fields array
-  const fieldsWithHeading = [dynamicHeadingField, ...fields];
-
   // Create form instance (similar to FormBuilderClient.tsx)
   const form = useForm({
     defaultValues: fields.reduce((acc, f) => ({ ...acc, [f.id]: '' }), {} as FormValues),
@@ -86,6 +88,15 @@ export const FieldCanvas = React.memo(({
 
   const handleFieldClick = (fieldDef: FormFieldDefinition) => {
     setSelectedFieldDef(fieldDef);
+  };
+
+  // Callback for when reordering is complete via Framer Motion
+  const onReorderFields = (newOrder: FormFieldDefinition[]) => {
+    // The newOrder from Reorder.Group contains only the reorderable items.
+    // We need to filter out any non-reorderable items (like a system-generated title)
+    // before setting the state, or ensure they are correctly handled.
+    // For now, assuming `fields` in context only contains user-added, reorderable fields.
+    setFields(newOrder);
   };
 
   const getFieldValidators = (fieldDef: FormFieldDefinition): { onChange?: FieldValidator<unknown> } => {
@@ -132,70 +143,145 @@ export const FieldCanvas = React.memo(({
       onDragOver={(e) => handleDragOverList(e, fieldListRef.current)}
       onDrop={handleDropOnList}
     >
+      {/* Static Form Title - Not part of reorderable list */}
+      <FieldItem
+        fieldDef={dynamicHeadingField}
+        selectedFieldDef={selectedFieldDef}
+        form={form}
+        formName={formName}
+        setFormName={setFormName}
+        handleFieldClick={handleFieldClick} // Allow selecting to edit properties if desired
+        removeField={() => {}} // Cannot remove system title
+        onPropertyChange={handlePropertyChange}
+        getFieldValidators={getFieldValidators}
+        isPreviewMode={isPreviewMode}
+      />
+
+      {/* Placeholder for dropping new items from palette AT THE VERY TOP */}
+      {fields.length === 0 && dragOverIndex === 0 && (
+         <div className="h-2 my-2 bg-blue-300 rounded-full drop-placeholder" />
+      )}
+      {/* Only show this if no fields and no active drag-over for a new item at index 0 */}
       {fields.length === 0 && dragOverIndex === null && (
         <div className="text-center text-gray-500 py-10 border-2 border-dashed border-gray-300 rounded-md">
           Drag fields from the palette here to build your form
         </div>
       )}
 
-      {fieldsWithHeading.map((fieldDef, index) => (
-        <React.Fragment key={fieldDef.id}>
-          {dragOverIndex === index && (
-            <div className="h-2 my-2 bg-blue-300 rounded-full drop-placeholder" />
-          )}
-
-          {/* wrapper: full-width relative container */}
-          <div className="relative mb-4 overflow-x-visible">
-            {/* FieldItem takes full width */}
-            <FieldItem
-              fieldDef={fieldDef}
-              index={index}
-              selectedFieldDef={selectedFieldDef}
-              form={form}
-              formName={fieldDef.isSystemGenerated && fieldDef.type === 'Heading' ? formName : undefined}
-              setFormName={fieldDef.isSystemGenerated && fieldDef.type === 'Heading' ? setFormName : undefined}
-              handleDragStartFromList={handleDragStartFromList}
-              handleDragEndList={handleDragEndList}
-              handleFieldClick={handleFieldClick}
-              removeField={removeField}
-              isDragging={draggedItemId === fieldDef.id}
-              onPropertyChange={handlePropertyChange}
-              getFieldValidators={getFieldValidators}
-              isPreviewMode={isPreviewMode}
+      <AnimatePresence>
+        {dragOverIndex === 0 && fields.length > 0 && ( // Placeholder when dragging to top of existing items
+            <motion.div 
+              key="drop-placeholder-top"
+              className="h-2 my-2 bg-blue-300 rounded-full drop-placeholder" 
+              layout // Ensure placeholder animates with list
             />
+        )}
+      </AnimatePresence>
 
-            {/* Conditionally hide Edit Properties button for system generated fields */}
-            {!fieldDef.isSystemGenerated && !isPreviewMode && (
-              <div className="flex flex-col absolute top-1/2 right-1 md:right-[-10px]
-                  transform -translate-y-1/2">
-                <button
-                  type="button"
-                  onClick={() => handleFieldClick(fieldDef)}
-                  className="text-xs text-blue-600 hover:underline whitespace-nowrap"
-                >
-                  Edit
-                </button>
-                <button
-                  type="button"
-                  onClick={(e) => { e.stopPropagation(); removeField(fieldDef.id); }}
-                  className="text-red-500 hover:text-red-700 text-xs "
-                  title="Remove field"
-                >
-                  Remove
-                </button>
-              </div>
-            )}
-          </div>
-        </React.Fragment>
-      ))}
+      <Reorder.Group
+        axis="y"
+        values={fields} // `fields` from context should be the array of user-added fields
+        onReorder={onReorderFields}
+        className="space-y-0" // Reorder.Item will have its own margin/padding
+      >
+        <AnimatePresence initial={false}>
+          {fields.map((fieldDef, index) => (
+            <React.Fragment key={fieldDef.id}>
+              {/* Placeholder for dropping new items from palette BETWEEN items */}
+              {/* index here is for `fields` array, dragOverIndex refers to `fieldsWithHeading` if not adjusted */}
+              {/* We need to adjust dragOverIndex if dynamicHeadingField is always first.
+                  If dragOverIndex is for inserting into `fields`, then it's fine.
+                  Assuming handleDragOverList sets dragOverIndex relative to the `fields` array (0 to N).
+              */}
+               {dragOverIndex === index && index !== 0 && ( //  index !== 0 because top placeholder is handled above
+                <motion.div 
+                  key={`drop-placeholder-${index}`}
+                  className="h-2 my-2 bg-blue-300 rounded-full drop-placeholder"
+                  layout
+                />
+              )}
+              <Reorder.Item
+                key={fieldDef.id}
+                value={fieldDef}
+                initial="hidden"
+                animate="show"
+                exit="hidden" // Or a different exit animation
+                variants={fadeUp}
+                layout // Enables smooth animation on reorder, add, remove
+                className="relative mb-4 overflow-x-visible" // Keep your styling for the item wrapper
+                // style={{ listStyle: \'none\' }} // Reorder.Item renders a li by default
+              >
+                {/* FieldItem takes full width */}
+                <FieldItem
+                  fieldDef={fieldDef}
+                  selectedFieldDef={selectedFieldDef}
+                  form={form}
+                  // No formName/setFormName for regular fields
+                  // handleDragStartFromList and handleDragEndList are removed
+                  // as Reorder.Item handles drag for reordering
+                  handleFieldClick={handleFieldClick}
+                  removeField={removeField}
+                  // isDragging is handled by Reorder.Item\'s internal state
+                  onPropertyChange={handlePropertyChange}
+                  getFieldValidators={getFieldValidators}
+                  isPreviewMode={isPreviewMode}
+                />
+                {/* Conditionally hide Edit Properties button for system generated fields */}
+                {/* This UI should probably be part of FieldItem itself or be aware of Reorder.Item */}
+                {!fieldDef.isSystemGenerated && !isPreviewMode && (
+                  <div className="flex flex-col absolute top-1/2 right-1 md:right-[-10px]
+                      transform -translate-y-1/2">
+                    <button
+                      type="button"
+                      onClick={() => handleFieldClick(fieldDef)}
+                      className="text-xs text-blue-600 hover:underline whitespace-nowrap"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      type="button"
+                      onClick={(e) => { e.stopPropagation(); removeField(fieldDef.id); }}
+                      className="text-red-500 hover:text-red-700 text-xs "
+                      title="Remove field"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                )}
+              </Reorder.Item>
+              {/* Placeholder for dropping new items from palette AFTER the last item in `fields` */}
+              {/* This covers the case where dragOverIndex is for appending a new field */}
+              {dragOverIndex === index + 1 && index === fields.length -1 && (
+                 <motion.div 
+                  key={`drop-placeholder-after-${index}`}
+                  className="h-2 my-2 bg-blue-300 rounded-full drop-placeholder"
+                  layout
+                />
+              )}
+            </React.Fragment>
+          ))}
+        </AnimatePresence>
+      </Reorder.Group>
+      
+      <AnimatePresence>
+        {/* Placeholder for dropping new items AT THE VERY BOTTOM if not covered by map */}
+        {/* This is when dragOverIndex is fields.length and fields.length > 0 */}
+        {dragOverIndex === fields.length && fields.length > 0 && (
+           <motion.div
+            key="drop-placeholder-bottom"
+            className="h-2 my-2 bg-blue-300 rounded-full drop-placeholder"
+            layout
+           />
+        )}
+      </AnimatePresence>
 
-
-      {dragOverIndex === fieldsWithHeading.length && fieldsWithHeading.length > 0 && (
+      {/* Original logic for placeholders - needs careful review with Reorder.Group */}
+      {/* {dragOverIndex === fieldsWithHeading.length && fieldsWithHeading.length > 0 && (
         <div className="h-2 my-2 bg-blue-300 rounded-full drop-placeholder"></div>
       )}
       {fieldsWithHeading.length === 0 && dragOverIndex === 0 && dragOverIndex !== null && (
         <div className="h-2 my-2 bg-blue-300 rounded-full drop-placeholder"></div>
-      )}
+      )} */}
     </div>
   );
 });

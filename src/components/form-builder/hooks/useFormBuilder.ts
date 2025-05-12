@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback } from 'react';
 import { trpc } from '@/trpc/client';
 import { FormFieldDefinition, FormValues } from '@/components/form-builder/types'; // Assuming types are here
 import { getDefaultFieldDefinition } from '@/components/form-builder/fields';
@@ -66,11 +66,7 @@ export function useFormBuilder({
   const [currentVersion, setCurrentVersion] = useState<number>(initialVersion);
   const [selectedFieldDef, setSelectedFieldDef] = useState<FormFieldDefinition | null>(null);
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
-  const [draggedItemId, setDraggedItemId] = useState<string | null>(null);
   const [isPreviewMode, setIsPreviewMode] = useState<boolean>(false);
-
-  const draggedItem = useRef<FormFieldDefinition | null>(null);
-  const draggedItemIndex = useRef<number | null>(null);
 
   const createFormMutation = trpc.form.create.useMutation({
     onSuccess: (data: { id: string; version?: number }) => {
@@ -134,16 +130,6 @@ export function useFormBuilder({
     // form.removeField(fieldId); // This is hypothetical
   }, [form]); // form dependency might be needed if interacting with it
 
-  const reorderField = useCallback((startIndex: number, endIndex: number) => {
-    if (startIndex === endIndex) return;
-    setFields(prevFields => {
-      const newFields = [...prevFields];
-      const [movedItem] = newFields.splice(startIndex, 1);
-      newFields.splice(endIndex, 0, movedItem);
-      return newFields;
-    });
-  }, []);
-  
   const handlePropertyChange = useCallback((propertyKey: string, value: unknown) => {
     if (!selectedFieldDef) return;
     const tempUpdatedField = { ...selectedFieldDef };
@@ -184,22 +170,6 @@ export function useFormBuilder({
   }, [formId, formName, formDescription, fields, currentVersion, updateFormMutation, createFormMutation]);
   
   // Drag Handlers
-  const handleDragStartFromList = useCallback((event: React.DragEvent<Element>, fieldDef: FormFieldDefinition, index: number) => {
-    draggedItem.current = fieldDef;
-    draggedItemIndex.current = index;
-    setDraggedItemId(fieldDef.id);
-    event.dataTransfer.effectAllowed = 'move';
-    event.dataTransfer.setData('application/form-field-id', fieldDef.id);
-    event.dataTransfer.setData('application/form-field-type', fieldDef.type);
-  }, []);
-
-  const handleDragEndList = useCallback(() => {
-    draggedItem.current = null;
-    draggedItemIndex.current = null;
-    setDragOverIndex(null);
-    setDraggedItemId(null);
-  }, []);
-
   const handleDragOverList = useCallback((event: React.DragEvent<Element>, fieldListRefCurrent: HTMLDivElement | null) => {
     event.preventDefault();
     event.dataTransfer.dropEffect = 'move';
@@ -230,21 +200,15 @@ export function useFormBuilder({
     event.preventDefault();
     const typeFromPalette = event.dataTransfer.getData('application/form-field-type') as FormFieldDefinition['type'];
     const labelFromPalette = event.dataTransfer.getData('application/form-field-label');
-    const droppedFieldId = event.dataTransfer.getData('application/form-field-id');
 
     const targetDropIndex = dragOverIndex !== null ? dragOverIndex : fields.length;
 
-    if (droppedFieldId && draggedItemIndex.current !== null) {
-      if (draggedItemIndex.current !== targetDropIndex) {
-        const effectiveTargetIndex = draggedItemIndex.current < targetDropIndex ? targetDropIndex -1 : targetDropIndex;
-        reorderField(draggedItemIndex.current, effectiveTargetIndex);
-      }
-    } else if (typeFromPalette && ALL_FIELD_TYPES.includes(typeFromPalette)) {
+    if (typeFromPalette && ALL_FIELD_TYPES.includes(typeFromPalette)) {
       addField(typeFromPalette, labelFromPalette, targetDropIndex);
     } else {
-      console.error('Invalid drop operation. Data:', { typeFromPalette, droppedFieldId });
+      console.warn('Attempted drop with invalid or missing field type from palette. Data:', { typeFromPalette });
     }
-  }, [dragOverIndex, fields.length, addField, reorderField]);
+  }, [dragOverIndex, fields.length, addField]);
 
   return {
     fields,
@@ -258,15 +222,11 @@ export function useFormBuilder({
     setSelectedFieldDef,
     addField,
     removeField,
-    reorderField,
     saveForm,
     handlePropertyChange,
     isSaving: updateFormMutation.isPending,
     isCreating: createFormMutation.isPending,
     dragOverIndex,
-    draggedItemId,
-    handleDragStartFromList,
-    handleDragEndList,
     handleDragOverList,
     handleDropOnList,
     isPreviewMode,

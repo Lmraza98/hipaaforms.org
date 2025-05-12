@@ -192,7 +192,6 @@ export interface FormBuilderContextValue {
   // actions
   addField: (type: FormFieldDefinition['type'], label?: string, index?: number) => void;
   removeField: (fieldId: string) => void;
-  reorderField: (startIndex: number, endIndex: number) => void;
   handlePropertyChange: (propertyKey: string, value: unknown) => void;
   saveForm: () => void;
 
@@ -202,9 +201,6 @@ export interface FormBuilderContextValue {
 
   // drag/drop
   dragOverIndex: number | null;
-  draggedItemId: string | null;
-  handleDragStartFromList: (e: React.DragEvent, def: FormFieldDefinition, idx: number) => void;
-  handleDragEndList: (e: React.DragEvent) => void;
   handleDragOverList: (e: React.DragEvent, ref: HTMLDivElement | null) => void;
   handleDropOnList: (e: React.DragEvent) => void;
 }
