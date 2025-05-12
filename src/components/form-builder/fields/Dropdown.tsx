@@ -1,6 +1,7 @@
 import React, { ChangeEvent } from 'react';
 import { AnyFieldApi } from '@tanstack/react-form';
-import { DropdownFieldDefinition, ValidatorFn } from '@/components/form-builder/types'; 
+import { DropdownFieldDefinition, ValidatorFn } from '@/components/form-builder/types';
+import { usePropertyChanger } from '../hooks/usePropertyChanger';
 
 const getInputProps = (fieldDef: DropdownFieldDefinition, fieldApi?: AnyFieldApi) => {
   return fieldApi ? {
@@ -15,28 +16,39 @@ const getInputProps = (fieldDef: DropdownFieldDefinition, fieldApi?: AnyFieldApi
   };
 };
 
-const commonInputClasses = "w-full px-3 py-2 rounded  text-gray-700 text-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500";
+export const Preview: React.FC<{
+  fieldDef: DropdownFieldDefinition;
+  fieldApi?: AnyFieldApi;
+}> = ({ fieldDef, fieldApi }) => {
+  const inputProps = getInputProps(fieldDef, fieldApi);
+  const options = fieldDef.options || [];
 
-export const Preview: React.FC<{ fieldDef: DropdownFieldDefinition; fieldApi?: AnyFieldApi }> = ({ fieldDef, fieldApi }) => {
   return (
-    <select {...getInputProps(fieldDef, fieldApi)} className={commonInputClasses} multiple={fieldDef.allowMultiple}>
-      <option value="" disabled={!!fieldApi} >{fieldDef.placeholder || 'Select an option'}</option>
-      {fieldDef.options?.map(opt => <option key={opt} value={opt}>{opt}</option>)}
+    <select
+      {...inputProps}
+      multiple={fieldDef.allowMultiple}
+      className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-blue-500 focus:border-blue-500"
+    >
+      {options.map((option, index) => (
+        <option key={index} value={option}>
+          {option}
+        </option>
+      ))}
     </select>
   );
 };
 
 export const Settings: React.FC<{
   fieldDef: DropdownFieldDefinition;
-  onPropertyChange: (property: keyof DropdownFieldDefinition, value: unknown) => void;
-}> = ({ fieldDef, onPropertyChange }) => {
+}> = ({ fieldDef }) => {
+  const change = usePropertyChanger(fieldDef);
+
   const handleOptionsChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
-    onPropertyChange('options', e.target.value.split('\n'));
+    change('options', e.target.value.split('\n'));
   };
 
-  // Example for allowMultiple
   const handleAllowMultipleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    onPropertyChange('allowMultiple', e.target.checked);
+    change('allowMultiple', e.target.checked);
   };
 
   return (
@@ -50,7 +62,7 @@ export const Settings: React.FC<{
           value={fieldDef.options?.join('\n') || ''}
           onChange={handleOptionsChange}
           rows={3}
-          className={commonInputClasses}
+          className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-blue-500 focus:border-blue-500"
         />
       </div>
       <div className="mb-3">

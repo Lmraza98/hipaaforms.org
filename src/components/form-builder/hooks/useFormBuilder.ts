@@ -3,16 +3,11 @@ import { trpc } from '@/trpc/client';
 import { FormFieldDefinition, FormValues } from '@/components/form-builder/types'; // Assuming types are here
 import { getDefaultFieldDefinition } from '@/components/form-builder/fields';
 import type { UserRole } from '@/server/trpc/routers/form'; // Import UserRole
-import type { FormApi } from '@tanstack/react-form'
+import type { FormApi, FormValidateOrFn, FormAsyncValidateOrFn } from '@tanstack/react-form'
 import { mapToInputSchema } from '@/utils/fieldMapper'; // Corrected path
 // 1) Create a named alias for your form instance:
 
 // Ensure all field types listed in Palette are defined above
-const ALL_FIELD_TYPES: FormFieldDefinition['type'][] = [
-    'Heading', 'FullName', 'Email', 'Address', 'Phone', 'DatePicker', 'Appointment',
-    'Signature', 'FillInTheBlank', 'ShortText', 'LongText', 'Paragraph',
-    'Dropdown', 'SingleChoice', 'MultiChoice', 'Number', 'Image', 'Time', 'SubmitButton'
-];
 
 let fieldIdCounter = 1;
 const getNewFieldId = (type: FormFieldDefinition['type']) => `${type.toLowerCase().replace(/\s+/g, '_')}_new_${fieldIdCounter++}`; // Added _new_ to distinguish from potentially existing ids
@@ -21,7 +16,6 @@ const getNewFieldId = (type: FormFieldDefinition['type']) => `${type.toLowerCase
 
 // type FormBuilderForm = ReturnType<typeof useForm<FormValues>>
 
-
 interface UseFormBuilderProps {
     formId: string;
     initialFieldsData?: FormFieldDefinition[];
@@ -29,19 +23,18 @@ interface UseFormBuilderProps {
     initialDescription: string;
     initialVersion: number;
     form: FormApi<
-        FormValues, 
-        undefined, 
-        undefined, 
-        undefined, 
-        undefined, 
-        undefined, 
-        undefined, 
-        undefined, 
-        undefined, 
-        unknown
+      FormValues,
+      FormValidateOrFn<FormValues> | undefined,
+      FormValidateOrFn<FormValues> | undefined,
+      FormAsyncValidateOrFn<FormValues> | undefined,
+      FormValidateOrFn<FormValues> | undefined,
+      FormAsyncValidateOrFn<FormValues> | undefined,
+      FormValidateOrFn<FormValues> | undefined,
+      FormAsyncValidateOrFn<FormValues> | undefined,
+      FormAsyncValidateOrFn<FormValues> | undefined,
+      unknown
     >;
     userRole: string;          // ← add this line
-
 }
 
 interface FormUpdateMutationSuccessData {
@@ -176,21 +169,39 @@ export function useFormBuilder({
     
     if (!fieldListRefCurrent) return;
 
-    const listItems = Array.from(fieldListRefCurrent.children) as HTMLElement[];
+    // Get all field items (excluding the form title and drop placeholders)
+    const fieldItems = Array.from(fieldListRefCurrent.querySelectorAll('.field-item')) as HTMLElement[];
     const mouseY = event.clientY;
     let newIndex = fields.length;
 
-    for (let i = 0; i < listItems.length; i++) {
-      const item = listItems[i];
-      if (item.classList.contains('drop-placeholder')) continue; 
-      
+    // If there are no fields, allow dropping at index 0
+    if (fieldItems.length === 0) {
+      setDragOverIndex(0);
+      return;
+    }
+
+    // Find the closest field item to the mouse position
+    for (let i = 0; i < fieldItems.length; i++) {
+      const item = fieldItems[i];
       const rect = item.getBoundingClientRect();
-      if (mouseY < rect.top + rect.height / 2) {
-        newIndex = i;
+      const itemMiddle = rect.top + rect.height / 2;
+
+      // If mouse is above the middle of the first item, drop at index 0
+      if (i === 0 && mouseY < itemMiddle) {
+        newIndex = 0;
         break;
       }
+
+      // If mouse is below the middle of the current item
+      if (mouseY > itemMiddle) {
+        // If this is the last item or mouse is above the middle of the next item
+        if (i === fieldItems.length - 1 || mouseY < fieldItems[i + 1].getBoundingClientRect().top + fieldItems[i + 1].getBoundingClientRect().height / 2) {
+          newIndex = i;
+          break;
+        }
+      }
     }
-    
+
     if (dragOverIndex !== newIndex) {
       setDragOverIndex(newIndex);
     }
@@ -201,12 +212,10 @@ export function useFormBuilder({
     const typeFromPalette = event.dataTransfer.getData('application/form-field-type') as FormFieldDefinition['type'];
     const labelFromPalette = event.dataTransfer.getData('application/form-field-label');
 
-    const targetDropIndex = dragOverIndex !== null ? dragOverIndex : fields.length;
-
-    if (typeFromPalette && ALL_FIELD_TYPES.includes(typeFromPalette)) {
-      addField(typeFromPalette, labelFromPalette, targetDropIndex);
-    } else {
-      console.warn('Attempted drop with invalid or missing field type from palette. Data:', { typeFromPalette });
+    if (typeFromPalette && labelFromPalette) {
+      const targetIndex = dragOverIndex !== null ? dragOverIndex : fields.length;
+      addField(typeFromPalette, labelFromPalette, targetIndex);
+      setDragOverIndex(null); // Reset drag over index after drop
     }
   }, [dragOverIndex, fields.length, addField]);
 

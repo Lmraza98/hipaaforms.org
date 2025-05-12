@@ -1,7 +1,7 @@
 'use client';
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useForm } from '@tanstack/react-form';
-import type { FormFieldDefinition, FormValues } from './types';
+import type { FormFieldDefinition, FormValues } from '../types';
 import { Palette } from './Palette';
 import { PropertiesPanel } from './PropertiesPanel';
 import { FieldCanvas } from './FieldCanvas';
@@ -91,6 +91,7 @@ export default function FormBuilderClient() {
           <FieldCanvas 
             paletteWrapperRef={paletteWrapperRef}
             propertiesWrapperRef={propertiesWrapperRef}
+            form={form}
           />
         </form>
       </div>

@@ -3,23 +3,27 @@
 import React, { ChangeEvent } from 'react';
 import { getFieldModule } from '@/components/form-builder/fields';
 import { useFormBuilderContext } from './context';
+import { usePropertyChanger } from '../hooks/usePropertyChanger';
+import type { FormFieldDefinition } from '../types';
 
 export const PropertiesPanel = () => {
-  const { selectedFieldDef, handlePropertyChange: onPropertyChange } = useFormBuilderContext();
+  const { selectedFieldDef } = useFormBuilderContext();
+  const change = usePropertyChanger(selectedFieldDef as FormFieldDefinition);
 
-  if (!selectedFieldDef) return null;
+  if (!selectedFieldDef) {
+    return null;
+  }
 
   const { Settings: FieldSettingsComponent } = getFieldModule(selectedFieldDef.type);
 
   const handleLabelChange = (event: ChangeEvent<HTMLInputElement>) => {
-    onPropertyChange('label', event.target.value); 
+    change('label', event.target.value); 
   };
 
   const handlePlaceholderChange = (event: ChangeEvent<HTMLInputElement>) => {
-    if (!selectedFieldDef) return;
     // Ensure the field type can have a placeholder before attempting to change it.
     if ('placeholder' in selectedFieldDef) {
-      onPropertyChange('placeholder', event.target.value);
+      (change as unknown as (key: string, value: unknown) => void)('placeholder', event.target.value);
     }
   };
   
@@ -32,7 +36,7 @@ export const PropertiesPanel = () => {
       // Safely access validatorsConfig, providing a default if it's null/undefined.
       const currentConfig = (selectedFieldDef as { validatorsConfig?: { required?: boolean } }).validatorsConfig || {};
       const newValidatorsConfig = { ...currentConfig, required: isChecked };
-      onPropertyChange('validatorsConfig', newValidatorsConfig);
+      (change as unknown as (key: string, value: unknown) => void)('validatorsConfig', newValidatorsConfig);
     }
   };
   
@@ -105,7 +109,12 @@ export const PropertiesPanel = () => {
       )}
 
       {FieldSettingsComponent && (
-        <FieldSettingsComponent fieldDef={selectedFieldDef} onPropertyChange={onPropertyChange} />
+        <FieldSettingsComponent 
+          fieldDef={selectedFieldDef} 
+          onPropertyChange={(property, value) => 
+            (change as unknown as (key: string, value: unknown) => void)(property, value)
+          } 
+        />
       )}
       
       <div className="flex-grow"></div> {/* Spacer */}

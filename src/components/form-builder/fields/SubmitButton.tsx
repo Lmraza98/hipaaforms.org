@@ -1,11 +1,15 @@
 import React, { ChangeEvent } from 'react';
 import { SubmitButtonFieldDefinition, ValidatorFn } from '@/components/form-builder/types';
+import { usePropertyChanger } from '../hooks/usePropertyChanger';
 
-export const Preview: React.FC<{ fieldDef: SubmitButtonFieldDefinition }> = ({ fieldDef }) => {
-  // In builder preview, it's just a visual button.
-  // The actual form submission is handled by the main form's submit button.
+export const Preview: React.FC<{
+  fieldDef: SubmitButtonFieldDefinition;
+}> = ({ fieldDef }) => {
   return (
-    <button type="button" className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
+    <button
+      type="submit"
+      className="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+    >
       {fieldDef.buttonText || fieldDef.label || 'Submit'}
     </button>
   );
@@ -13,10 +17,11 @@ export const Preview: React.FC<{ fieldDef: SubmitButtonFieldDefinition }> = ({ f
 
 export const Settings: React.FC<{
   fieldDef: SubmitButtonFieldDefinition;
-  onPropertyChange: (property: keyof SubmitButtonFieldDefinition, value: unknown) => void;
-}> = ({ fieldDef, onPropertyChange }) => {
+}> = ({ fieldDef }) => {
+  const change = usePropertyChanger(fieldDef);
+
   const handleButtonTextChange = (e: ChangeEvent<HTMLInputElement>) => {
-    onPropertyChange('buttonText', e.target.value);
+    change('buttonText', e.target.value);
   };
 
   return (

@@ -1,9 +1,9 @@
 'use client';
 import React from 'react';
-import { AnyFieldApi, FormApi, Field } from '@tanstack/react-form';
+import { AnyFieldApi, Field } from '@tanstack/react-form';
 import { getFieldModule } from '@/components/form-builder/fields';
-import type { FormFieldDefinition, FieldValidator } from './types';
-import { FormValues } from '@/components/form-builder/types';
+import { useFieldValidators } from '../hooks/useFieldValidators';
+import { FormValues, FormFieldDefinition, TypedFormApi } from '@/components/form-builder/types';
 
 interface FieldInfoProps {
   field: AnyFieldApi;
@@ -20,45 +20,52 @@ function FieldInfo({ field }: FieldInfoProps) {
   );
 }
 
-interface FieldItemProps {
-  fieldDef: FormFieldDefinition;
-  selectedFieldDef: FormFieldDefinition | null;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  form: FormApi<FormValues, any, any, any, any, any, any, any, any, unknown>;
-  getFieldValidators: (fieldDef: FormFieldDefinition) => { onChange?: FieldValidator<unknown> };
-  handleFieldClick: (fieldDef: FormFieldDefinition) => void;
-  removeField: (fieldId: string) => void;
+interface FieldItemProps<T extends FormFieldDefinition> {
+  fieldDef: T;
+  selectedFieldDef: T | null;
+  form: TypedFormApi<FormValues>;
+  handleFieldClick: (fieldDef: T) => void;
+  removeField?: (fieldId: T['id']) => void;
   formName?: string;
   setFormName?: (name: string) => void;
-  onPropertyChange: (propertyKey: string, value: unknown) => void;
+  onPropertyChange: <K extends keyof T>(propertyKey: K, value: T[K]) => void;
   isPreviewMode?: boolean;
+  justAdded?: boolean;
 }
 
-const FieldItemComponent = ({ 
+const FieldItemComponent = <T extends FormFieldDefinition>({ 
   fieldDef, 
   selectedFieldDef, 
   form,
-  getFieldValidators, 
   handleFieldClick, 
   removeField,
   formName,
   setFormName,
   onPropertyChange,
   isPreviewMode,
-}: FieldItemProps) => {
+  justAdded,
+}: FieldItemProps<T>) => {
   const { Preview } = getFieldModule(fieldDef.type);
-  const fieldValidators = getFieldValidators(fieldDef);
+  const fieldValidators = useFieldValidators(fieldDef);
 
   const isSystemTitleHeading = fieldDef.isSystemGenerated && fieldDef.type === 'Heading';
 
+  // Blue outline state for just added
+  const [showOutline, setShowOutline] = React.useState(justAdded);
+  React.useEffect(() => {
+    if (justAdded) {
+      setShowOutline(true);
+      const timeout = setTimeout(() => setShowOutline(false), 700); // 700ms matches fadeUp duration
+      return () => clearTimeout(timeout);
+    }
+  }, [justAdded]);
+
   if (fieldDef.type === 'SubmitButton') {
-    // SubmitButton doesn't use fieldApi and is unlikely to be the system title heading
-    // but we handle the props consistently.
     const propsForPreview = {
       fieldDef,
       ...(isSystemTitleHeading && { formName, setFormName }),
-      onPropertyChange: (property: keyof typeof fieldDef, value: unknown) => 
-        onPropertyChange(`${fieldDef.id}.${String(property)}`, value),
+      onPropertyChange: (property: keyof T, value: T[keyof T]) => 
+        onPropertyChange(property, value),
       isPreviewMode,
     };
     return (
@@ -76,7 +83,7 @@ const FieldItemComponent = ({
           <Preview {...propsForPreview} />
           <div className="flex justify-between items-center mt-2">
             <small className="text-gray-500 text-xs">Type: {fieldDef.type}</small>
-            {!isSystemTitleHeading && !isPreviewMode && (
+            {!isSystemTitleHeading && !isPreviewMode && removeField && (
               <button 
                 type="button"
                 onClick={(e) => { e.stopPropagation(); removeField(fieldDef.id); }}
@@ -103,26 +110,27 @@ const FieldItemComponent = ({
           fieldDef,
           fieldApi,
           ...(isSystemTitleHeading && { formName, setFormName }),
-          onPropertyChange: (property: keyof typeof fieldDef, value: unknown) => 
-            onPropertyChange(`${fieldDef.id}.${String(property)}`, value),
+          onPropertyChange: (property: keyof T, value: T[keyof T]) => {
+            onPropertyChange(property, value);
+          },
           isPreviewMode,
         };
 
         const baseClasses = "p-4 rounded-lg bg-white mb-3";
         const selectedClasses = selectedFieldDef?.id === fieldDef.id && !isSystemTitleHeading && !isPreviewMode ? "ring-2 ring-blue-500" : "";
+        const justAddedClasses = showOutline ? "ring-2 ring-blue-500" : "";
         return (
           <div
             onClick={() => !isSystemTitleHeading && !isPreviewMode && handleFieldClick(fieldDef)}
             className={`
               ${!isSystemTitleHeading && !isPreviewMode ? 'cursor-pointer' : 'cursor-default'} 
-              ${selectedFieldDef?.id === fieldDef.id && !isSystemTitleHeading && !isPreviewMode ? 'outline-offset-2 rounded-lg' : ''}
+              ${selectedClasses} 
+              ${justAddedClasses}
             `}
           >
-            <div className={`${baseClasses} ${selectedClasses} ${isPreviewMode ? 'border-transparent' : ''}`}>
-           
+            <div className={`${baseClasses} ${isPreviewMode ? 'border-transparent' : ''}`}>
               <Preview {...propsForPreview} /> 
               <FieldInfo field={fieldApi} />
-            
             </div>
           </div>
         );
@@ -131,4 +139,4 @@ const FieldItemComponent = ({
   );
 };
 
-export const FieldItem = React.memo(FieldItemComponent); 
+export const FieldItem = React.memo(FieldItemComponent) as typeof FieldItemComponent; 

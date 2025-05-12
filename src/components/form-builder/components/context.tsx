@@ -1,8 +1,9 @@
 'use client';
 import React, { createContext, useContext } from 'react';
-import { useForm, type FormApi } from '@tanstack/react-form';
-import { useFormBuilder } from './hooks/useFormBuilder';
-import type { FormBuilderContextValue, FormBuilderProviderProps, FormValues } from './types';
+import { useForm } from '@tanstack/react-form';
+import { useFormBuilder } from '../hooks/useFormBuilder';
+import type { FormBuilderContextValue, FormBuilderProviderProps, FormValues } from '../types';
+import { FormAsyncValidateOrFn, FormValidateOrFn } from '@tanstack/react-form';
 
 const FormBuilderContext = createContext<FormBuilderContextValue | null>(null);
 
@@ -16,14 +17,23 @@ export function FormBuilderProvider({
   children,
 }: FormBuilderProviderProps) {
   // 1) create the form instance here
-  const form = useForm({
-    defaultValues: initialFieldsData
-      .reduce((acc, f) => ({ ...acc, [f.id]: '' }), {} as Record<string, unknown>),
-    onSubmit: async ({ value }) => {
-      // you can replace with your real save
-      console.log('submitted', value);
-    },
-  }) as unknown as FormApi<FormValues, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, unknown>
+  const form = useForm<FormValues,
+    FormValidateOrFn<FormValues> | undefined,
+    FormValidateOrFn<FormValues> | undefined,
+    FormAsyncValidateOrFn<FormValues> | undefined,
+    FormValidateOrFn<FormValues> | undefined,
+    FormAsyncValidateOrFn<FormValues> | undefined,
+    FormValidateOrFn<FormValues> | undefined,
+    FormAsyncValidateOrFn<FormValues> | undefined,
+    FormAsyncValidateOrFn<FormValues> | undefined,
+    unknown>({
+      defaultValues: initialFieldsData
+        .reduce((acc, f) => ({ ...acc, [f.id]: '' }), {} as Record<string, unknown>),
+      onSubmit: async ({ value }) => {
+        // you can replace with your real save
+        console.log('submitted', value);
+      },
+    })
 
   // 2) now pass that `form` into your hook
   const {

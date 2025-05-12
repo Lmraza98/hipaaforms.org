@@ -1,4 +1,4 @@
-import type { FormApi, AnyFieldApi } from '@tanstack/react-form';
+import type { FormApi, AnyFieldApi, FormValidateOrFn, FormAsyncValidateOrFn } from '@tanstack/react-form';
 
 export type FormValues = Record<string, unknown>;
 
@@ -56,7 +56,7 @@ export interface FillInTheBlankFieldDefinition extends BaseFieldDefinition {
 
 export interface ParagraphFieldDefinition extends Omit<BaseFieldDefinition, 'placeholder' | 'validatorsConfig'> {
   type: 'Paragraph';
-  content: string; 
+  content: string;
   // Label is used as the primary text for paragraph.
 }
 
@@ -79,7 +79,7 @@ export interface HeadingFieldDefinition extends Omit<BaseFieldDefinition, 'place
 
 export interface SubmitButtonFieldDefinition extends Omit<BaseFieldDefinition, 'placeholder' | 'validatorsConfig'> {
   type: 'SubmitButton';
-  buttonText?: string; 
+  buttonText?: string;
 }
 
 export interface AddressFieldDefinition extends BaseFieldDefinition { type: 'Address'; }
@@ -111,66 +111,65 @@ export type FormFieldDefinition =
   | ImageFieldDefinition;
 
 export interface HeadingPreviewProps {
-    fieldDef: HeadingFieldDefinition;
-    onPropertyChange: (property: keyof HeadingFieldDefinition, value: unknown) => void;
+  fieldDef: HeadingFieldDefinition;
+  onPropertyChange: (property: keyof HeadingFieldDefinition, value: unknown) => void;
 }
 
 export interface FieldCanvasProps {
-    fields: FormFieldDefinition[];
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    form: FormApi<FormValues, any, any, any, any, any, any, any, any, unknown>; 
-    formName?: string;
-    setFormName?: (name: string) => void;
-    selectedFieldDef: FormFieldDefinition | null;
-    dragOverIndex: number | null;
-    handleDragOverList: (event: React.DragEvent<Element>, fieldListRefCurrent: HTMLDivElement | null) => void;
-    handleDropOnList: (event: React.DragEvent<Element>) => void;
-    handleDragStartFromList: (event: React.DragEvent<Element>, fieldDef: FormFieldDefinition, index: number) => void;
-    handleDragEndList: (event: React.DragEvent<Element>) => void;
-    handleFieldClick: (fieldDef: FormFieldDefinition) => void;
-    removeField: (fieldId: string) => void;
-    getFieldValidators: (fieldDef: FormFieldDefinition) => { onChange?: FieldValidator<unknown> };
-    draggedItemId: string | null; 
-    setIsPropertiesOpen: (isOpen: boolean) => void;
-    onPropertyChange: (propertyKey: string, value: unknown) => void;
+  fields: FormFieldDefinition[];
+  form: TypedFormApi<FormValues>;
+  formName?: string;
+  setFormName?: (name: string) => void;
+  selectedFieldDef: FormFieldDefinition | null;
+  dragOverIndex: number | null;
+  handleDragOverList: (event: React.DragEvent<Element>, fieldListRefCurrent: HTMLDivElement | null) => void;
+  handleDropOnList: (event: React.DragEvent<Element>) => void;
+  handleDragStartFromList: (event: React.DragEvent<Element>, fieldDef: FormFieldDefinition, index: number) => void;
+  handleDragEndList: (event: React.DragEvent<Element>) => void;
+  handleFieldClick: (fieldDef: FormFieldDefinition) => void;
+  removeField: (fieldId: string) => void;
+  getFieldValidators: (fieldDef: FormFieldDefinition) => { onChange?: FieldValidator<unknown> };
+  draggedItemId: string | null;
+  setIsPropertiesOpen: (isOpen: boolean) => void;
+  onPropertyChange: (propertyKey: string, value: unknown) => void;
 }
 
 /**
  * Validator signature for a single field value.
  */
 export type FieldValidator<T> = (
-    params: { value: T }
+  params: { value: T }
 ) => string | undefined | Promise<string | undefined>;
-  
+
 export interface FieldModule<
-    TDef extends FormFieldDefinition = FormFieldDefinition
+  TDef extends FormFieldDefinition = FormFieldDefinition
 > {
-    Preview: React.FC<{ fieldDef: TDef; fieldApi?: AnyFieldApi }>;
-    Settings: React.FC<{
-      fieldDef: TDef;
-      onPropertyChange: (property: keyof TDef, value: unknown) => void;
-    }>;
-    /**
-     * Return an object whose keys map to validator functions
-     */
-    getValidators?: (fieldDef: TDef) => {
-      onChange?: FieldValidator<unknown>;
-    };
-    /**
-     * Map this fieldDef to the backend schema's fieldType string
-     */
-    mapToSchemaType?: (fieldDef: TDef) => string;
+  Preview: React.FC<{ fieldDef: TDef; fieldApi?: AnyFieldApi }>;
+  Settings: React.FC<{
+    fieldDef: TDef;
+    onPropertyChange: (property: keyof TDef, value: unknown) => void;
+  }>;
+  /**
+   * Return an object whose keys map to validator functions
+   */
+  getValidators?: (fieldDef: TDef) => {
+    onChange?: FieldValidator<unknown>;
+  };
+  /**
+   * Map this fieldDef to the backend schema's fieldType string
+   */
+  mapToSchemaType?: (fieldDef: TDef) => string;
 }
-  
+
 export type FieldType = FormFieldDefinition['type'];
-  
-  // 2) define a registry type
-  //    – keys are each FieldType (optional, so you can add modules over time)
-  //    – plus a mandatory Default entry
+
+// 2) define a registry type
+//    – keys are each FieldType (optional, so you can add modules over time)
+//    – plus a mandatory Default entry
 export type FieldRegistry = {
-    [T in FieldType]?: FieldModule<Extract<FormFieldDefinition, { type: T }>>;
-  } & {
-    Default: FieldModule<FormFieldDefinition>;
+  [T in FieldType]?: FieldModule<Extract<FormFieldDefinition, { type: T }>>;
+} & {
+  Default: FieldModule<FormFieldDefinition>;
 };
 
 export interface FormBuilderContextValue {
@@ -214,3 +213,16 @@ export interface FormBuilderProviderProps {
   userRole: string;
   children: React.ReactNode;
 }
+
+export type TypedFormApi<TValues extends object> = FormApi<
+  TValues,
+  FormValidateOrFn<TValues> | undefined,
+  FormValidateOrFn<TValues> | undefined,
+  FormAsyncValidateOrFn<TValues> | undefined,
+  FormValidateOrFn<TValues> | undefined,
+  FormAsyncValidateOrFn<TValues> | undefined,
+  FormValidateOrFn<TValues> | undefined,
+  FormAsyncValidateOrFn<TValues> | undefined,
+  FormAsyncValidateOrFn<TValues> | undefined,
+  unknown
+>
