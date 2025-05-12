@@ -1,7 +1,9 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
+import { trpc } from '@/utils/trpc';
+import { useFormBuilderContext } from './context';
 
 // Placeholder for a server action to update form details
 // You'll need to create this server action e.g., in 'app/actions.ts'
@@ -20,120 +22,127 @@ interface InlineEditableTitleProps {
 export default function InlineEditableTitle({
     formId,
     initialName,
-    initialDescription
+    initialDescription,
+    initialVersion
 }: InlineEditableTitleProps) {
-    const [name, setName] = useState(initialName);
-    const [description, setDescription] = useState(initialDescription || '');
-
-    const [isEditingName, setIsEditingName] = useState(false);
+    const [displayName, setDisplayName] = useState(initialName || "Untitled Form");
+    const [currentValue, setCurrentValue] = useState(initialName || "Untitled Form");
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const [ _, setIsEditingDescription] = useState(false);
-    
+    const [_, setIsEditingDescription] = useState(initialDescription || '');
+
     const [isSaving, setIsSaving] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
     const router = useRouter();
+    const editableDivRef = useRef<HTMLDivElement>(null);
+    const { setFormName } = useFormBuilderContext();
 
-    useEffect(() => {
-        setName(initialName);
+    const updateFormMutation = trpc.form.update.useMutation({
+        onSuccess: ({ name: updatedName }) => {
+            if (updatedName) {
+                setFormName(updatedName);
+                setDisplayName(updatedName); 
+                setCurrentValue(updatedName); 
+                if (editableDivRef.current && editableDivRef.current.innerText !== updatedName) {
+                    editableDivRef.current.innerText = updatedName; // Ensure DOM reflects saved name
+                }
+                router.refresh();
+            }
+        },
+        onError: (err) => {
+            setError(err.message || 'Failed to save changes.');
+            // Revert current value to last saved name (displayName)
+            setCurrentValue(displayName);
+            if (editableDivRef.current && editableDivRef.current.innerText !== displayName) {
+                 editableDivRef.current.innerText = displayName; // Ensure DOM reflects reverted name
+            }
+            setFormName(displayName); 
+        }
+    });
+
+    useEffect(() => { 
+        const nameToUse = initialName || "Untitled Form";
+        setDisplayName(nameToUse);
+        setCurrentValue(nameToUse); 
+        if (editableDivRef.current && editableDivRef.current.innerText !== nameToUse) {
+            editableDivRef.current.innerText = nameToUse;
+        }
     }, [initialName]);
 
-    useEffect(() => {
-        setDescription(initialDescription || '');
-    }, [initialDescription]);
-
-    const handleSave = useCallback(async (field: 'name' | 'description', value: string) => {
-        if ((field === 'name' && value === initialName) || (field === 'description' && value === (initialDescription || ''))) {
-            setIsEditingName(false);
-            setIsEditingDescription(false);
+    const handleSave = useCallback(async () => {
+        const trimmedValue = currentValue.trim();
+        
+        if (trimmedValue === displayName || trimmedValue === '') {
+            const valueToSet = trimmedValue === '' ? displayName : trimmedValue;
+            setCurrentValue(valueToSet); 
+            if (editableDivRef.current && editableDivRef.current.innerText !== valueToSet) {
+                editableDivRef.current.innerText = valueToSet;
+            }
+            if (trimmedValue === '') { 
+                setFormName(displayName); // If cleared, context should also use original displayName
+            } else {
+                 setFormName(valueToSet); // If unchanged but not empty, context is fine
+            }
             return;
         }
 
         setIsSaving(true);
         setError(null);
         try {
-            // --- SERVER ACTION CALL ---
-            // Replace with your actual server action
-            // const result = await updateFormNameAndDescription({ formId, name: field === 'name' ? value : name, description: field === 'description' ? value : description });
-            // if (result.error) throw new Error(result.error);
-            
-            // SIMULATED SERVER ACTION FOR NOW
-            await new Promise(resolve => setTimeout(resolve, 700)); 
-            console.log(`Simulated save for ${field}: ${value} (Form ID: ${formId})`);
-            // --- END SERVER ACTION CALL ---
-
-            if (field === 'name') initialName = value; // Update baseline for next edit
-            if (field === 'description') initialDescription = value; // Update baseline for next edit
-            
-            setIsEditingName(false);
-            setIsEditingDescription(false);
-            router.refresh(); // Refresh server components & re-fetch data
+            await updateFormMutation.mutateAsync({
+                id: formId,
+                name: trimmedValue,
+                description: initialDescription || '',
+                version: initialVersion,
+            });
         } catch (err) {
             console.error("Failed to save:", err);
-            setError(err instanceof Error ? err.message : 'Failed to save changes.');
-            // Optionally revert changes on error
-            if (field === 'name') setName(initialName);
-            if (field === 'description') setDescription(initialDescription || '');
         } finally {
             setIsSaving(false);
         }
-    }, [formId, name, description, initialName, initialDescription, router]);
+    }, [currentValue, displayName, formId, initialDescription, initialVersion, updateFormMutation, setFormName]);
 
-
-    const handleNameBlur = () => {
-        if (name.trim() === '') {
-            setName(initialName); // Revert if empty
-            setIsEditingName(false);
-            return;
+    const handleBlur = () => {
+        handleSave();
+    };
+    
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            handleSave();
+            editableDivRef.current?.blur();
         }
-        handleSave('name', name);
+        if (e.key === 'Escape') {
+            e.preventDefault();
+            setCurrentValue(displayName); 
+            if (editableDivRef.current && editableDivRef.current.innerText !== displayName) {
+                editableDivRef.current.innerText = displayName; // Ensure DOM reflects reverted name on Escape
+            }
+            setFormName(displayName); 
+            editableDivRef.current?.blur();
+        }
+    };
+
+    const handleDivInput = (e: React.FormEvent<HTMLDivElement>) => {
+        setCurrentValue(e.currentTarget.innerText);
+        // Also update form context live if desired, or wait for blur/save
+        // setFormName(e.currentTarget.innerText); // Optional: live update context
     };
 
     return (
         <div className="flex flex-col sm:flex-row sm:items-center sm:gap-x-3 p-1">
-            <div className="flex items-center group mb-1 sm:mb-0">
-                {isEditingName ? (
-                    <input
-                        type="text"
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                        onBlur={handleNameBlur}
-                        onKeyDown={(e) => {
-                            if (e.key === 'Enter') {
-                                e.preventDefault();
-                                handleNameBlur();
-                            }
-                            if (e.key === 'Escape') {
-                                setName(initialName);
-                                setIsEditingName(false);
-                            }
-                        }}
-                        className="text-lg font-semibold border-b-2 border-blue-500 outline-none focus:border-blue-600 transition-colors"
-                        autoFocus
-                        disabled={isSaving}
-                    />
-                ) : (
-                    <h1
-                        className="text-lg font-semibold  group-hover:text-blue-600 cursor-pointer"
-                        onClick={() => !isSaving && setIsEditingName(true)}
-                        title="Click to edit form name"
-                    >
-                        {name || "Untitled Form"}
-                    </h1>
-                )}
-                {!isEditingName && (
-                    <button 
-                        onClick={() => !isSaving && setIsEditingName(true)} 
-                        className="ml-2 text-gray-400 hover:text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity disabled:opacity-50"
-                        aria-label="Edit form name"
-                        disabled={isSaving}
-                    >
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5">
-                            <path d="M13.586 3.586a2 2 0 1 1 2.828 2.828l-.793.793-2.828-2.828.793-.793ZM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828Z" />
-                        </svg>
-                    </button>
-                )}
-            </div>
+            <h1
+                ref={editableDivRef}
+                contentEditable={!isSaving}
+                suppressContentEditableWarning={true}
+                onInput={handleDivInput}
+                onBlur={handleBlur}
+                onKeyDown={handleKeyDown}
+                className="p-1 -m-1 text-2xl font-semibold text-gray-900 outline-none min-w-[100px] break-all border-b border-blue-600 cursor-text text-center"
+                style={{ WebkitUserModify: !isSaving ? 'read-write-plaintext-only' : 'read-only' }} 
+            >
+                {/* Content is managed by the browser during typing; useEffect sets initial DOM content */}
+            </h1>
             {error && <p className="text-sm text-red-600 ml-2">Error: {error}</p>}
         </div>
     );

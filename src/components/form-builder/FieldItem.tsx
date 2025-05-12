@@ -35,6 +35,7 @@ interface FieldItemProps {
   formName?: string;
   setFormName?: (name: string) => void;
   onPropertyChange: (propertyKey: string, value: unknown) => void;
+  isPreviewMode?: boolean;
 }
 
 const FieldItemComponent = ({ 
@@ -51,6 +52,7 @@ const FieldItemComponent = ({
   formName,
   setFormName,
   onPropertyChange,
+  isPreviewMode,
 }: FieldItemProps) => {
   const { Preview } = getFieldModule(fieldDef.type);
   const fieldValidators = getFieldValidators(fieldDef);
@@ -65,27 +67,28 @@ const FieldItemComponent = ({
       ...(isSystemTitleHeading && { formName, setFormName }),
       onPropertyChange: (property: keyof typeof fieldDef, value: unknown) => 
         onPropertyChange(`${fieldDef.id}.${String(property)}`, value),
+      isPreviewMode,
     };
     return (
       <div 
-        draggable={!isSystemTitleHeading}
-        onDragStart={(e) => !isSystemTitleHeading && handleDragStartFromList(e, fieldDef, index)}
-        onDragEnd={!isSystemTitleHeading ? handleDragEndList : undefined}
-        onClick={() => !isSystemTitleHeading && handleFieldClick(fieldDef)}
+        draggable={!isSystemTitleHeading && !isPreviewMode}
+        onDragStart={(e) => !isSystemTitleHeading && !isPreviewMode && handleDragStartFromList(e, fieldDef, index)}
+        onDragEnd={!isSystemTitleHeading && !isPreviewMode ? handleDragEndList : undefined}
+        onClick={() => !isSystemTitleHeading && !isPreviewMode && handleFieldClick(fieldDef)}
         className={`
-          ${!isSystemTitleHeading ? 'cursor-grab' : 'cursor-default'} 
-          ${selectedFieldDef?.id === fieldDef.id && !isSystemTitleHeading ? 'rounded-lg' : ''} 
-          ${isDragging && !isSystemTitleHeading ? 'opacity-50' : ''}
+          ${!isSystemTitleHeading && !isPreviewMode ? 'cursor-grab' : 'cursor-default'} 
+          ${selectedFieldDef?.id === fieldDef.id && !isSystemTitleHeading && !isPreviewMode ? 'rounded-lg' : ''} 
+          ${isDragging && !isSystemTitleHeading && !isPreviewMode ? 'opacity-50' : ''}
         `}
       >
-        <div className="p-4 rounded-lg bg-white mb-3">
+        <div className={`p-4 rounded-lg bg-white mb-3 ${isPreviewMode ? 'border-transparent' : ''}`}>
           <label className="block mb-1.5 font-medium text-gray-700 text-sm">
             {fieldDef.label || `${fieldDef.type} Field`}
           </label>
           <Preview {...propsForPreview} />
           <div className="flex justify-between items-center mt-2">
             <small className="text-gray-500 text-xs">Type: {fieldDef.type}</small>
-            {!isSystemTitleHeading && (
+            {!isSystemTitleHeading && !isPreviewMode && (
               <button 
                 type="button"
                 onClick={(e) => { e.stopPropagation(); removeField(fieldDef.id); }}
@@ -114,23 +117,24 @@ const FieldItemComponent = ({
           ...(isSystemTitleHeading && { formName, setFormName }),
           onPropertyChange: (property: keyof typeof fieldDef, value: unknown) => 
             onPropertyChange(`${fieldDef.id}.${String(property)}`, value),
+          isPreviewMode,
         };
 
         const baseClasses = "p-4 rounded-lg bg-white mb-3";
-        const selectedClasses = selectedFieldDef?.id === fieldDef.id && !isSystemTitleHeading ? "ring-2 ring-blue-500" : "";
+        const selectedClasses = selectedFieldDef?.id === fieldDef.id && !isSystemTitleHeading && !isPreviewMode ? "ring-2 ring-blue-500" : "";
         return (
           <div
-            draggable={!isSystemTitleHeading}
-            onDragStart={(e) => !isSystemTitleHeading && handleDragStartFromList(e, fieldDef, index)}
-            onDragEnd={!isSystemTitleHeading ? handleDragEndList : undefined}
-            onClick={() => !isSystemTitleHeading && handleFieldClick(fieldDef)}
+            draggable={!isSystemTitleHeading && !isPreviewMode}
+            onDragStart={(e) => !isSystemTitleHeading && !isPreviewMode && handleDragStartFromList(e, fieldDef, index)}
+            onDragEnd={!isSystemTitleHeading && !isPreviewMode ? handleDragEndList : undefined}
+            onClick={() => !isSystemTitleHeading && !isPreviewMode && handleFieldClick(fieldDef)}
             className={`
-              ${!isSystemTitleHeading ? 'cursor-grab' : 'cursor-default'} 
-              ${selectedFieldDef?.id === fieldDef.id && !isSystemTitleHeading ? 'outline-offset-2 rounded-lg' : ''} 
-              ${isDragging && !isSystemTitleHeading ? 'opacity-50' : ''}
+              ${!isSystemTitleHeading && !isPreviewMode ? 'cursor-grab' : 'cursor-default'} 
+              ${selectedFieldDef?.id === fieldDef.id && !isSystemTitleHeading && !isPreviewMode ? 'outline-offset-2 rounded-lg' : ''} 
+              ${isDragging && !isSystemTitleHeading && !isPreviewMode ? 'opacity-50' : ''}
             `}
           >
-            <div className={`${baseClasses} ${selectedClasses}`}>
+            <div className={`${baseClasses} ${selectedClasses} ${isPreviewMode ? 'border-transparent' : ''}`}>
            
               <Preview {...propsForPreview} /> 
               <FieldInfo field={fieldApi} />

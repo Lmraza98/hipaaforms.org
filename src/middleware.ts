@@ -1,7 +1,4 @@
-export { default } from "next-auth/middleware";
-
-// Alternatively, for more complex logic, you can define your own middleware function:
-/*
+// Commenting out the default export
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { getToken } from 'next-auth/jwt';
@@ -11,10 +8,10 @@ export async function middleware(req: NextRequest) {
 
   const { pathname } = req.nextUrl;
 
-  // Example: Protect /dashboard and its sub-routes
-  if (pathname.startsWith('/dashboard')) {
+  // Protect /dashboard and /forms routes
+  if (pathname.startsWith('/dashboard') || pathname.startsWith('/forms')) {
     if (!session) {
-      const signInUrl = new URL('/api/auth/signin', req.url);
+      const signInUrl = new URL('/sign-in', req.url);
       signInUrl.searchParams.set('callbackUrl', pathname); // Redirect back after sign-in
       return NextResponse.redirect(signInUrl);
     }
@@ -26,13 +23,12 @@ export async function middleware(req: NextRequest) {
 
   return NextResponse.next();
 }
-*/
 
 // See "Matching Paths" below to learn more
 export const config = {
   matcher: [
     '/dashboard/:path*', // Protect all routes under /dashboard
-    // Add other paths you want to protect
+    '/forms/:path*',     // Protect all routes under /forms
     // '/profile',
     // '/settings',
   ],

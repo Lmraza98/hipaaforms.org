@@ -63,7 +63,7 @@ export const PropertiesPanel = () => {
       </div>
 
       <div className="mb-4">
-        <label htmlFor="label-input" className="block mb-1.5 font-medium text-gray-700 text-sm">
+        <label htmlFor="label-input" className="block mb-1.5 font-medium text-gray-700 text-sm placeholder:text-gray-400">
           Label / Name:
         </label>
         <input
@@ -71,7 +71,7 @@ export const PropertiesPanel = () => {
           type="text"
           value={selectedFieldDef.label || ''}
           onChange={handleLabelChange}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-blue-500 focus:border-blue-500"
+          className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-blue-500 focus:border-blue-500 text-gray-700"
         />
       </div>
 
@@ -85,7 +85,7 @@ export const PropertiesPanel = () => {
             type="text"
             value={currentPlaceholder}
             onChange={handlePlaceholderChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-blue-500 focus:border-blue-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-blue-500 focus:border-blue-500 text-gray-700"
           />
         </div>
       )}
@@ -97,7 +97,7 @@ export const PropertiesPanel = () => {
               type="checkbox"
               checked={isCurrentlyRequired} 
               onChange={handleRequiredChange}
-              className="mr-2 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+              className="mr-2 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 selection:text-gray-700"
             />
             Required
           </label>

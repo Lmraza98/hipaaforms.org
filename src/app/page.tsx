@@ -1,16 +1,16 @@
 'use client'
 import { useState } from "react";
-import Hero from "@/components/landing-page/Hero.client";
-import WhyChoose from "@/components/landing-page/WhyChoose.client";
+import Hero from "@/components/marketing/Hero.client";
+import WhyChoose from "@/components/marketing/WhyChoose.client";
 import dynamic from "next/dynamic";
-import type { GodRaysSettings } from '@/components/landing-page/GodRaysRemote.client'; // Import the interface
+import type { GodRaysSettings } from '@/components/marketing/GodRaysRemote.client'; // Import the interface
 
 // This ensures the WebGL code only runs in the browser
-const GodRays = dynamic(() => import('@/components/landing-page/VolumetricGodRays.client'), {
+const GodRays = dynamic(() => import('@/components/marketing/VolumetricGodRays.client'), {
   ssr: false
 })
 
-const GodRaysRemote = dynamic(() => import('@/components/landing-page/GodRaysRemote.client'), {
+const GodRaysRemote = dynamic(() => import('@/components/marketing/GodRaysRemote.client'), {
   ssr: false,
 });
 

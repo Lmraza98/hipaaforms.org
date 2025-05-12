@@ -67,6 +67,7 @@ export function useFormBuilder({
   const [selectedFieldDef, setSelectedFieldDef] = useState<FormFieldDefinition | null>(null);
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
   const [draggedItemId, setDraggedItemId] = useState<string | null>(null);
+  const [isPreviewMode, setIsPreviewMode] = useState<boolean>(false);
 
   const draggedItem = useRef<FormFieldDefinition | null>(null);
   const draggedItemIndex = useRef<number | null>(null);
@@ -102,16 +103,29 @@ export function useFormBuilder({
 
   const addField = useCallback((type: FormFieldDefinition['type'], label?: string, index?: number) => {
     const newFieldId = getNewFieldId(type);
-    const newField = getDefaultFieldDefinition(type, newFieldId, label || `\${type} Field`);
+    const newField = getDefaultFieldDefinition(type, newFieldId, label || `${type} Field`);
     setFields((currentFields) => {
       const newFields = [...currentFields];
-      const targetIndex = index !== undefined ? index : currentFields.length;
+      let targetIndex: number;
+
+      if (index !== undefined) {
+        // If an index is explicitly passed (e.g., from drag and drop)
+        targetIndex = index;
+      } else if (selectedFieldDef) {
+        // If a field is selected, insert below it
+        const selectedIdx = currentFields.findIndex(f => f.id === selectedFieldDef.id);
+        targetIndex = selectedIdx !== -1 ? selectedIdx + 1 : currentFields.length;
+      } else {
+        // Otherwise, add to the end
+        targetIndex = currentFields.length;
+      }
+      
       newFields.splice(targetIndex, 0, newField);
       return newFields;
     });
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     form.setFieldValue(newField.id as keyof FormValues, '' as any);
-  }, [form]);
+  }, [form, selectedFieldDef]);
 
   const removeField = useCallback((fieldId: string) => {
     setFields((currentFields) => currentFields.filter(f => f.id !== fieldId));
@@ -255,6 +269,8 @@ export function useFormBuilder({
     handleDragEndList,
     handleDragOverList,
     handleDropOnList,
+    isPreviewMode,
+    setIsPreviewMode,
   };
 }
 

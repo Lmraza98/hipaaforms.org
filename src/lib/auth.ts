@@ -163,7 +163,7 @@ export const authOptions: NextAuthOptions = {
     },
   },
   pages: {
-    // signIn: '/auth/signin', // Commented out to use default NextAuth.js sign-in page
+    signIn: '/sign-in', // Commented out to use default NextAuth.js sign-in page
     // error: '/auth/error', // Optional: custom error page
     // verifyRequest: '/auth/verify-request', // Optional: for email provider
   },

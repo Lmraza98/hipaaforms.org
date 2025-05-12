@@ -1,11 +1,8 @@
 'use client';
-
 import React, { createContext, useContext } from 'react';
 import { useForm, type FormApi } from '@tanstack/react-form';
 import { useFormBuilder } from './hooks/useFormBuilder';
 import type { FormBuilderContextValue, FormBuilderProviderProps, FormValues } from './types';
-
-
 
 const FormBuilderContext = createContext<FormBuilderContextValue | null>(null);
 
@@ -52,6 +49,8 @@ export function FormBuilderProvider({
     handleDragEndList,
     handleDragOverList,
     handleDropOnList,
+    isPreviewMode,
+    setIsPreviewMode,
   } = useFormBuilder({
     formId,
     initialFieldsData,
@@ -87,6 +86,8 @@ export function FormBuilderProvider({
         handleDragEndList,
         handleDragOverList,
         handleDropOnList,
+        isPreviewMode,
+        setIsPreviewMode,
       }}
     >
       {children}

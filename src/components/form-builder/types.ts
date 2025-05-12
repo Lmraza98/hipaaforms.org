@@ -73,6 +73,7 @@ export interface DropdownFieldDefinition extends BaseFieldDefinition {
 export interface HeadingFieldDefinition extends Omit<BaseFieldDefinition, 'placeholder' | 'validatorsConfig'> {
   type: 'Heading';
   level?: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6';
+  subheading?: string;
   // Label is used as the heading text.
 }
 
@@ -173,52 +174,20 @@ export type FieldRegistry = {
 };
 
 export interface FormBuilderContextValue {
-  fields: FormFieldDefinition[];
-  setFields: React.Dispatch<React.SetStateAction<FormFieldDefinition[]>>;
-  formName: string;
-  setFormName: (name: string) => void;
-  formDescription: string;
-  setFormDescription: (description: string) => void;
-  currentVersion: number;
-  selectedFieldDef: FormFieldDefinition | null;
-  setSelectedFieldDef: (fieldDef: FormFieldDefinition | null) => void;
-  addField: (type: FormFieldDefinition['type'], label?: string, index?: number) => void;
-  removeField: (fieldId: string) => void;
-  reorderField: (startIndex: number, endIndex: number) => void;
-  saveForm: () => void;
-  handlePropertyChange: (propertyKey: string, value: unknown) => void;
-  isSaving: boolean;
-  isCreating: boolean;
-  dragOverIndex: number | null;
-  draggedItemId: string | null;
-  handleDragStartFromList: (event: React.DragEvent<Element>, fieldDef: FormFieldDefinition, index: number) => void;
-  handleDragEndList: (event: React.DragEvent<Element>) => void;
-  handleDragOverList: (event: React.DragEvent<Element>, fieldListRefCurrent: HTMLDivElement | null) => void;
-  handleDropOnList: (event: React.DragEvent<Element>) => void;
-}
-export interface FormBuilderProviderProps {
-  formId: string;
-  initialFieldsData: FormFieldDefinition[];
-  initialName: string;
-  initialDescription: string;
-  initialVersion: number;
-  userRole: string;
-  children: React.ReactNode;
-}
-
-export interface FormBuilderContextValue {
   // state
   fields: FormFieldDefinition[];
   formName: string;
   formDescription: string;
   currentVersion: number;
   selectedFieldDef: FormFieldDefinition | null;
+  isPreviewMode: boolean;
 
   // setters
   setFields: React.Dispatch<React.SetStateAction<FormFieldDefinition[]>>;
   setFormName: (name: string) => void;
   setFormDescription: (desc: string) => void;
   setSelectedFieldDef: (field: FormFieldDefinition | null) => void;
+  setIsPreviewMode: (isPreview: boolean) => void;
 
   // actions
   addField: (type: FormFieldDefinition['type'], label?: string, index?: number) => void;
@@ -238,4 +207,14 @@ export interface FormBuilderContextValue {
   handleDragEndList: (e: React.DragEvent) => void;
   handleDragOverList: (e: React.DragEvent, ref: HTMLDivElement | null) => void;
   handleDropOnList: (e: React.DragEvent) => void;
+}
+
+export interface FormBuilderProviderProps {
+  formId: string;
+  initialFieldsData: FormFieldDefinition[];
+  initialName: string;
+  initialDescription: string;
+  initialVersion: number;
+  userRole: string;
+  children: React.ReactNode;
 }

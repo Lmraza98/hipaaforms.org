@@ -6,9 +6,9 @@ import { redirect } from 'next/navigation';
 import type { Session } from 'next-auth';
 import { appRouter } from '@/server/trpc/routers';
 import { TRPCError } from '@trpc/server';
-import InlineEditableTitle from '@/components/form-builder/InlineEditableTitle.client';
 import { FormBuilderProvider } from '@/components/form-builder/context';
 import type { FormFieldDefinition } from '@/components/form-builder/types';
+import { FormBuilderNav } from '@/components/form-builder/Nav.client';
 import { z } from 'zod';
 import { FormFieldOptionsSchema } from '@/server/trpc/routers/form';
 
@@ -19,12 +19,12 @@ export default async function FormBuilderLayout({
   params,
 }: {
   children: React.ReactNode;
-  params: Promise<{ formId: string }> 
+  params: Promise<{ formId: string }>
 }) {
   const { formId } = await params;
-  // 1) auth
+
   const session: Session | null = await getServerSession(authOptions);
-  if (!session?.user) redirect('/api/auth/signin');
+  if (!session?.user) redirect('/sign-in');
 
   // 2) fetch form
   const caller = appRouter.createCaller({ session, user: session.user });
@@ -32,7 +32,7 @@ export default async function FormBuilderLayout({
   try {
     formWithRole = await caller.form.getById({ id: formId });
   } catch (e) {
-    if (e instanceof TRPCError && ['NOT_FOUND','FORBIDDEN'].includes(e.code)) {
+    if (e instanceof TRPCError && ['NOT_FOUND', 'FORBIDDEN'].includes(e.code)) {
       throw new Error(e.code);
     }
     throw e;
@@ -43,8 +43,8 @@ export default async function FormBuilderLayout({
   const initialFields: FormFieldDefinition[] = fields.map(field => {
     const options = field.options as FormFieldOptionsType;
     return {
-      ...field, 
-      ...options, 
+      ...field,
+      ...options,
       type: options.fieldType as FormFieldDefinition['type'],
       label: options.label,
       id: field.id,
@@ -61,15 +61,13 @@ export default async function FormBuilderLayout({
       initialVersion={version}
       userRole={userRole}
     >
-      {/* top‐bar with editable title */}
-      <div className="p-4 border-b bg-white">
-        <InlineEditableTitle
-          formId={formId}
-          initialName={name}
-          initialDescription={description}
-          initialVersion={version}
-        />
-      </div>
+      {/* our new client nav */}
+      <FormBuilderNav
+        formId={formId}
+        initialName={name ?? 'Untitled Form'}
+        initialDescription={description ?? ''}
+        initialVersion={version}
+      />
 
       {/* the rest of your form‐builder UI (pages/children) */}
       <div style={{ height: 'calc(100vh - 120px)' }}>

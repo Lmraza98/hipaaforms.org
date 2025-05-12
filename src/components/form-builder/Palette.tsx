@@ -2,13 +2,20 @@
 
 import React from 'react';
 import type { FormFieldDefinition } from './types';
+import { useFormBuilderContext } from './context';
 
 // Palette component remains the same as it's mostly UI and sets data for drag operations
 export const Palette = () => { 
+  const { addField } = useFormBuilderContext();
+
   const onDragStart = (event: React.DragEvent<Element>, fieldType: FormFieldDefinition['type'], label: string) => {
     event.dataTransfer.setData('application/form-field-type', fieldType);
     event.dataTransfer.setData('application/form-field-label', label);
     event.dataTransfer.effectAllowed = 'move';
+  };
+
+  const handleFieldClick = (fieldType: FormFieldDefinition['type'], label: string) => {
+    addField(fieldType, label);
   };
 
   const fieldTypes: { type: FormFieldDefinition['type']; label: string; icon: string }[] = [
@@ -41,6 +48,7 @@ export const Palette = () => {
           <div
             key={field.type}
             onDragStart={(event) => onDragStart(event, field.type, field.label)}
+            onClick={() => handleFieldClick(field.type, field.label)}
             draggable
             className="border border-gray-300 p-2.5 rounded-md bg-white hover:bg-gray-50 cursor-grab text-gray-700 text-center shadow-sm transition-colors flex flex-col items-center justify-center h-24"
           >

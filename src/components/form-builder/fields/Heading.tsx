@@ -1,70 +1,100 @@
 'use client';
-import React, { ChangeEvent, useState, useEffect, KeyboardEvent } from 'react';
-import { HeadingFieldDefinition, HeadingPreviewProps, ValidatorFn } from '@/components/form-builder/types';
-import { AnyFieldApi } from '@tanstack/react-form';
+import React, { useState, useEffect, useRef } from 'react';
+import { HeadingFieldDefinition, ValidatorFn } from '@/components/form-builder/types';
 
-// Original preview component renamed to HeadingPreviewEditor
-export const HeadingPreviewEditor: React.FC<HeadingPreviewProps> = ({ fieldDef, onPropertyChange }) => {
+interface EditableHeadingPreviewProps {
+  fieldDef: HeadingFieldDefinition;
+  onPropertyChange?: (property: keyof HeadingFieldDefinition, value: unknown) => void;
+  formName?: string; 
+  setFormName?: (name: string) => void; 
+  isSystemGenerated?: boolean;
+  isPreviewMode?: boolean;
+}
+
+export const Preview: React.FC<EditableHeadingPreviewProps> = ({
+  fieldDef,
+  onPropertyChange,
+  formName,
+  setFormName,
+  isSystemGenerated,
+  isPreviewMode,
+}) => {
   const Tag = fieldDef.level || 'h2';
-  const [isEditing, setIsEditing] = useState(false);
-  const [currentText, setCurrentText] = useState(fieldDef.label);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [currentHeadingText, setCurrentHeadingText] = useState(fieldDef.label);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [currentSubheadingText, setCurrentSubheadingText] = useState(fieldDef.subheading || '');
+
+  const headingRef = useRef<HTMLHeadingElement>(null);
+  const subheadingRef = useRef<HTMLParagraphElement>(null);
 
   useEffect(() => {
-    if (!isEditing) {
-      setCurrentText(fieldDef.label);
+    const newLabel = isSystemGenerated && formName !== undefined ? formName : fieldDef.label;
+    setCurrentHeadingText(newLabel);
+    if (headingRef.current && headingRef.current.textContent !== newLabel) {
+      headingRef.current.textContent = newLabel;
     }
-  }, [fieldDef.label, isEditing]);
+  }, [fieldDef.label, formName, isSystemGenerated]);
 
-  const handleSave = () => {
-    if (currentText.trim() !== fieldDef.label) {
-      onPropertyChange('label', currentText.trim());
+  useEffect(() => {
+    const newSubText = fieldDef.subheading || '';
+    setCurrentSubheadingText(newSubText);
+    if (subheadingRef.current && subheadingRef.current.textContent !== newSubText) {
+      subheadingRef.current.textContent = newSubText;
     }
-    setIsEditing(false);
+  }, [fieldDef.subheading]);
+
+  const handleHeadingSave = () => {
+    const newLabel = headingRef.current?.textContent?.trim() || '';
+    if (isSystemGenerated && setFormName) {
+      if (newLabel !== formName) setFormName(newLabel);
+    } else {
+      if (newLabel !== fieldDef.label) onPropertyChange?.('label', newLabel);
+    }
+    setCurrentHeadingText(newLabel);
   };
 
-  const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      handleSave();
-    } else if (e.key === 'Escape') {
-      setCurrentText(fieldDef.label); // Revert to original
-      setIsEditing(false);
+  const handleSubheadingSave = () => {
+    const newSubheading = subheadingRef.current?.textContent?.trim() || '';
+    if (newSubheading !== (fieldDef.subheading || '')) {
+      onPropertyChange?.('subheading', newSubheading);
     }
+    setCurrentSubheadingText(newSubheading);
   };
 
-  if (isEditing) {
-    return (
-      <input
-        type="text"
-        value={currentText}
-        onChange={(e) => setCurrentText(e.target.value)}
-        onBlur={handleSave}
-        onKeyDown={handleKeyDown}
-        className={`text-lg font-semibold text-gray-700 my-2 w-full focus:outline-none bg-transparent`}
-        autoFocus
-      />
-    );
-  }
+  const headingBaseClasses = `font-semibold text-gray-900 w-full bg-transparent focus:outline-none`;
+  const headingTagClasses = `${Tag === 'h1' ? 'text-2xl' : 'text-xl'}`;
+  const subheadingBaseClasses = `text-sm text-gray-600 w-full bg-transparent focus:outline-none`;
+
+  const contentEditableForRegularHeading = !isPreviewMode;
 
   return (
-    <Tag
-      className="text-lg font-semibold text-gray-700 my-2 cursor-pointer hover:text-blue-600 transition-colors"
-      onClick={() => setIsEditing(true)}
-      title="Click to edit heading text"
-    >
-      {currentText}
-    </Tag>
-  );
-};
+    <div className="my-1 w-full">
+      <Tag
+        ref={headingRef}
+        className={`${headingBaseClasses} ${headingTagClasses} ${contentEditableForRegularHeading && !isSystemGenerated ? 'cursor-text' : 'cursor-default'}`}
+        contentEditable={contentEditableForRegularHeading && !isSystemGenerated}
+        suppressContentEditableWarning
+        onInput={contentEditableForRegularHeading && !isSystemGenerated ? () => setCurrentHeadingText(headingRef.current?.textContent || '') : undefined}
+        onBlur={contentEditableForRegularHeading && !isSystemGenerated ? handleHeadingSave : undefined}
+        title={contentEditableForRegularHeading && !isSystemGenerated ? (isSystemGenerated ? "Form title (handled separately)" : "Click to edit heading") : undefined}
+      >
+        {/* Content is now managed by the browser during typing; useEffect sets initial DOM content */}
+      </Tag>
 
-// New wrapper component that matches the FieldModule interface
-export const Preview: React.FC<{ fieldDef: HeadingFieldDefinition; fieldApi?: AnyFieldApi }> = ({ fieldDef }) => {
-  // In non-editable mode, just render the heading without editing capabilities
-  const Tag = fieldDef.level || 'h2';
-  return (
-    <Tag className="text-lg font-semibold text-gray-700 my-2">
-      {fieldDef.label}
-    </Tag>
+      <p
+        ref={subheadingRef}
+        className={`${subheadingBaseClasses} min-h-[20px] mt-1 ${contentEditableForRegularHeading ? 'cursor-text' : 'cursor-default'} ${currentSubheadingText === '' && !isSystemGenerated && !isPreviewMode ? 'italic text-gray-400' : ''}`}
+        contentEditable={contentEditableForRegularHeading}
+        suppressContentEditableWarning
+        onInput={contentEditableForRegularHeading ? () => setCurrentSubheadingText(subheadingRef.current?.textContent || '') : undefined}
+        onBlur={contentEditableForRegularHeading ? handleSubheadingSave : undefined}
+        title={contentEditableForRegularHeading ? (isSystemGenerated ? "Form subtitle (handled separately)" : "Click to edit subheading") : undefined}
+        data-placeholder={contentEditableForRegularHeading && !isSystemGenerated ? (isSystemGenerated ? "Optional: Add a short description for your form" : "Subheading") : undefined}
+      >
+        {/* Content is now managed by the browser during typing; useEffect sets initial DOM content. The className handles placeholder appearance. */}
+      </p>
+    </div>
   );
 };
 
@@ -72,41 +102,46 @@ export const Settings: React.FC<{
   fieldDef: HeadingFieldDefinition;
   onPropertyChange: (property: keyof HeadingFieldDefinition, value: unknown) => void;
 }> = ({ fieldDef, onPropertyChange }) => {
-  const handleLevelChange = (e: ChangeEvent<HTMLSelectElement>) => {
-    onPropertyChange('level', e.target.value as HeadingFieldDefinition['level']);
-  };
-
-  const handleLabelChange = (e: ChangeEvent<HTMLInputElement>) => {
-    onPropertyChange('label', e.target.value);
-  };
-
   return (
     <div className="space-y-4">
       <div>
-        <label htmlFor="heading-text-input" className="block mb-1.5 font-medium text-gray-700 text-sm">
+        <label htmlFor={`heading-text-input-${fieldDef.id}`} className="block mb-1.5 font-medium text-gray-700 text-sm">
           Heading Text:
         </label>
         <input
           type="text"
-          id="heading-text-input"
+          id={`heading-text-input-${fieldDef.id}`}
           value={fieldDef.label}
-          onChange={handleLabelChange}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-blue-500 focus:border-blue-500"
+          onChange={(e) => onPropertyChange('label', e.target.value)}
+          className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-blue-500 focus:border-blue-500 text-gray-700"
         />
       </div>
       <div>
-        <label htmlFor="heading-level" className="block mb-1.5 font-medium text-gray-700 text-sm">
+        <label htmlFor={`subheading-text-input-${fieldDef.id}`} className="block mb-1.5 font-medium text-gray-700 text-sm">
+          Subheading Text (Optional):
+        </label>
+        <input
+          type="text"
+          id={`subheading-text-input-${fieldDef.id}`}
+          value={fieldDef.subheading || ''}
+          onChange={(e) => onPropertyChange('subheading', e.target.value)}
+          placeholder="Enter subheading here"
+          className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-blue-500 focus:border-blue-500 text-gray-700"
+        />
+      </div>
+      <div>
+        <label htmlFor={`heading-level-${fieldDef.id}`} className="block mb-1.5 font-medium text-gray-700 text-sm">
           Heading Level:
         </label>
         <select
-          id="heading-level"
+          id={`heading-level-${fieldDef.id}`}
           value={fieldDef.level || 'h2'}
-          onChange={handleLevelChange}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-blue-500 focus:border-blue-500"
+          onChange={(e) => onPropertyChange('level', e.target.value as HeadingFieldDefinition['level'])}
+          className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-blue-500 focus:border-blue-500 text-gray-700"
         >
-          <option value="h1">H1</option>
-          <option value="h2">H2</option>
-          <option value="h3">H3</option>
+          <option value="h1">H1 (Title)</option>
+          <option value="h2">H2 (Heading)</option>
+          <option value="h3">H3 (Sub-heading)</option>
           <option value="h4">H4</option>
           <option value="h5">H5</option>
           <option value="h6">H6</option>
@@ -116,14 +151,5 @@ export const Settings: React.FC<{
   );
 };
 
-// No validators for Heading
-// Headings typically don't have data validators or map to a schema input type
-export const getValidators = (): { onChange?: ValidatorFn } => {
-  return {}; // No validators for Heading
-};
-// export const getValidators = (fieldDef: HeadingFieldDefinition): { onChange?: ValidatorFn } => {
-//     return {}; // No validators for Heading
-//   };
-
-export const mapToSchemaType = (): string => 'heading'; // Or handle as non-input in backend 
-// export const mapToSchemaType = (fieldDef: HeadingFieldDefinition): string => 'heading'; // Or handle as non-input in backend 
+export const getValidators = (): { onChange?: ValidatorFn } => ({});
+export const mapToSchemaType = (): string => 'heading';
