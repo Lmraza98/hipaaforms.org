@@ -1,5 +1,5 @@
 import React from 'react';
-import { FormFieldDefinition } from '../types';
+import { FormFieldDefinition } from '../../types';
 
 export const Preview: React.FC<{
   fieldDef: FormFieldDefinition;

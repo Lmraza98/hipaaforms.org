@@ -10,28 +10,81 @@ import * as Email from './Email';
 import * as Heading from './Heading';
 import * as SubmitButton from './SubmitButton';
 import * as Dropdown from './Dropdown';
-import * as DefaultField from './DefaultPreview';
+import * as FullName from './FullName';
+import * as LongText from './LongText';
+import * as DefaultField from './DefaultPreview/DefaultPreview';
+import * as Address from './Address/Address';
+import * as Phone from './Phone/Phone';
+import * as DatePicker from './Datepicker/DatePicker';
+import * as Appointment from './Appointment';
+import * as Signature from './Signature';
+import * as FillInTheBlank from './FillInTheBlank';
+import * as Paragraph from './Paragraph';
+import * as SingleChoice from './SingleChoice';
+import * as MultiChoice from './MultiChoice';
+import * as NumberField from './Number';
+import * as ImageField from './Image/Image';
+import * as TimeField from './Time';
 
 export const fieldRegistry: FieldRegistry = {
-  ShortText: ShortText as FieldModule<
-    Extract<FormFieldDefinition, { type: 'ShortText' }>
+  Address: Address as FieldModule<
+    Extract<FormFieldDefinition, { type: 'Address' }>
+  >,
+  Appointment: Appointment as FieldModule<
+    Extract<FormFieldDefinition, { type: 'Appointment' }>
+  >,
+  DatePicker: DatePicker as FieldModule<
+    Extract<FormFieldDefinition, { type: 'DatePicker' }>
+  >,
+  Default: DefaultField as FieldModule<FormFieldDefinition>,
+  Dropdown: Dropdown as FieldModule<
+    Extract<FormFieldDefinition, { type: 'Dropdown' }>
   >,
   Email: Email as FieldModule<
     Extract<FormFieldDefinition, { type: 'Email' }>
   >,
+  FillInTheBlank: FillInTheBlank as FieldModule<
+    Extract<FormFieldDefinition, { type: 'FillInTheBlank' }>
+  >,
+  FullName: FullName as FieldModule<
+    Extract<FormFieldDefinition, { type: 'FullName' }>
+  >,
   Heading: Heading as FieldModule<
     Extract<FormFieldDefinition, { type: 'Heading' }>
+  >,
+  Image: ImageField as FieldModule<
+    Extract<FormFieldDefinition, { type: 'Image' }>
+  >,
+  LongText: LongText as FieldModule<
+    Extract<FormFieldDefinition, { type: 'LongText' }>
+  >,
+  MultiChoice: MultiChoice as FieldModule<
+    Extract<FormFieldDefinition, { type: 'MultiChoice' }>
+  >,
+  Number: NumberField as FieldModule<
+    Extract<FormFieldDefinition, { type: 'Number' }>
+  >,
+  Paragraph: Paragraph as FieldModule<
+    Extract<FormFieldDefinition, { type: 'Paragraph' }>
+  >,
+  Phone: Phone as FieldModule<
+    Extract<FormFieldDefinition, { type: 'Phone' }>
+  >,
+  ShortText: ShortText as FieldModule<
+    Extract<FormFieldDefinition, { type: 'ShortText' }>
+  >,
+  Signature: Signature as FieldModule<
+    Extract<FormFieldDefinition, { type: 'Signature' }>
+  >,
+  SingleChoice: SingleChoice as FieldModule<
+    Extract<FormFieldDefinition, { type: 'SingleChoice' }>
   >,
   SubmitButton: SubmitButton as FieldModule<
     Extract<FormFieldDefinition, { type: 'SubmitButton' }>
   >,
-  Dropdown: Dropdown as FieldModule<
-    Extract<FormFieldDefinition, { type: 'Dropdown' }>
+  Time: TimeField as FieldModule<
+    Extract<FormFieldDefinition, { type: 'Time' }>
   >,
-
-  // …other field modules…
-
-  Default: DefaultField as FieldModule<FormFieldDefinition>,
 };
 
 export const getFieldModule = <
@@ -80,15 +133,54 @@ export const getDefaultFieldDefinition = (
       return { ...base, type, rows: 3 };
 
     case 'Dropdown':
+      return {
+        ...base,
+        type,
+        options: [
+          { value: 'option1', label: 'Option 1' },
+          { value: 'option2', label: 'Option 2' },
+        ],
+        allowMultiple: false,
+      } as FormFieldDefinition;
+
     case 'SingleChoice':
+      return {
+        ...base,
+        type,
+        options: [
+          { value: 'option1', label: 'Option 1' },
+          { value: 'option2', label: 'Option 2' },
+        ],
+      } as FormFieldDefinition;
+
     case 'MultiChoice':
-      return { ...base, type, options: ['Option 1', 'Option 2'] };
+      return {
+        ...base,
+        type,
+        options: [
+          { value: 'option1', label: 'Option 1' },
+          { value: 'option2', label: 'Option 2' },
+        ],
+        orientation: 'vertical',
+        shuffleOptions: false,
+      } as FormFieldDefinition;
 
     case 'DatePicker':
       return { ...base, type };
 
     case 'Heading':
-      return { id, label, type, level: 'h2' };
+      return {
+        id,
+        label,
+        type,
+        level: 'h2',
+        subheading: '',
+        alignment: 'left',
+        fontSize: '2xl',
+        fontWeight: 'semibold',
+        textColor: 'gray-900',
+        margin: 'my-1',
+      } as FormFieldDefinition;
 
     case 'Paragraph':
       return {

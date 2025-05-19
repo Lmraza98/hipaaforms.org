@@ -53,6 +53,7 @@
     "nodemailer": "^6.10.1",
     "postprocessing": "^6.37.3",
     "react": "^19.0.0",
+    "react-color-palette": "^7.3.0",
     "react-dom": "^19.0.0",
     "reactflow": "^11.11.4",
     "superjson": "^2.2.2",

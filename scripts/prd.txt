@@ -1,0 +1,373 @@
+1. Executive Summary
+
+HIPAAForms.org is a web‑based drag‑and‑drop form builder that enables healthcare organizations to create, distribute, and manage HIPAA‑compliant forms. The initial release (MVP) focuses on offering a secure builder, preview, publish flow, and a lightweight analytics dashboard while enforcing the technical and administrative safeguards required by HIPAA.
+
+2. Problem Statement
+
+Healthcare providers still rely heavily on paper or generic form tools that do not meet HIPAA requirements. Existing HIPAA‑compliant form products are expensive, inflexible, or developer‑centric. Our goal is to deliver an affordable, self‑service builder that shields users from the complexity of compliance while integrating smoothly with modern EHR and CRM systems.
+
+3. Goals and Objectives
+
+Deliver a fully functional MVP that lets non‑technical users build, preview, and publish secure forms within 12 weeks
+
+The project already has a good amount of work done on it already, please make sure you understand the project and update any cursor rules you may need to
+
+Achieve 99.9 percent form availability and sub‑300 ms median load time for the builder UI
+
+Store 100 percent of ePHI in encrypted AWS services (PostgreSQL + S3 + KMS) and pass an external HIPAA audit by launch
+
+Implement a CRDT for multiple collaborators on the form-builder. Please detail this implementation as much as possible
+
+Enable self‑service upgrades to paid tiers through Stripe within 16 weeks (stretch)
+
+4. Success Metrics
+
+Metric
+
+Target
+
+Time to first published form
+
+< 10 minutes from sign‑up
+
+Builder crash‑free sessions
+
+≥ 99.5 percent
+
+Average form completion rate
+
+≥ 60 percent
+
+Support tickets per 100 active users
+
+< 5 per month
+
+5. Personas
+
+Clinic Admin Ashley – Needs to digitize intake paperwork quickly without IT help.
+
+Solo Therapist Theo – Wants an inexpensive way to collect signed consent forms online.
+
+Developer Dana (Future phase) – Integrates patient responses into custom EHR workflows via API.
+
+6. Scope (MVP)
+
+6.1 Core Builder Features
+
+Drag‑and‑drop field palette and sortable canvas
+
+Properties panel with contextual settings for each field
+
+Inline form name and description editing
+
+Preview mode toggle (desktop + mobile frames)
+
+6.2 Field Types and Properties (Phase 1 deliverable)
+
+Field
+
+Key Properties
+
+Heading
+
+text, level (h1‑h6), alignment
+
+Full Name
+
+label, placeholder, required
+
+Email
+
+label, validation, required
+
+Address
+
+label, show / hide fields (street 2, state, zip), required
+
+Phone
+
+label, format (US, intl), required
+
+Date Picker
+
+label, min, max, required
+
+Appointment
+
+label, allowed days, slot length, buffer
+
+Signature
+
+label, required, pad height
+
+Fill in the Blank
+
+prompt text, correct answer (optional)
+
+Short Text
+
+label, placeholder, min, max, required
+
+Long Text
+
+label, placeholder, char limit, required
+
+Paragraph
+
+rich text content (static)
+
+Dropdown
+
+label, options array, default, required
+
+Single Choice
+
+label, options, default, required
+
+Multi Choice
+
+label, options, max choices
+
+Number
+
+label, min, max, step, required
+
+Image
+
+alt text, max size, required
+
+Time
+
+label, min, max, required
+
+Submit Button
+
+text, style variant
+
+Completion Definition: A field type is complete when it renders in the palette, supports drag‑drop, persists to the canvas, exposes its full property schema in the panel, syncs live with useFormBuilder, validates on submit, and serializes through the TRPC API.
+
+6.3 Publish Flow
+
+Generate public form URL with short slug
+
+Optional embed code (iframe) with CSP header guidance
+
+Server‑side Next.js route to accept submissions – writes to DB, uploads file fields to S3, and queues audit log
+
+Post‑submission redirect or in‑page confirmation
+
+6.4 Dashboard (Phase 2)
+
+List of forms with status, total responses, last submission date
+
+Drill‑down table of responses with CSV download
+
+Basic charts: completions over time, field‑level drop‑off
+
+6.5 Compliance and Security
+
+RBAC: owner, editor, viewer enforced in TRPC router
+
+Encryption in transit (TLS) and at rest (Postgres + S3 + KMS)
+
+Unique per‑tenant S3 prefixes and signed URL access
+
+Audit log of critical events (create form, publish, view PHI, export)
+
+Business Associate Agreement downloadable from settings
+
+7. Non‑functional Requirements
+
+Performance: P95 builder interaction < 150 ms
+
+Scalability: PostgreSQL vertical scale to 64 GB and S3 unlimited
+
+Accessibility: WCAG 2.1 AA for builder and forms
+
+Testing: Jest unit tests ≥ 80 percent coverage on utils and reducers – critical paths e2e via Playwright
+
+Observability: Vercel analytics + Datadog traces on API routes
+
+8. Technical Architecture
+
+8.1 Front‑end
+
+Framework: Next.js 15 (App Router) with React 19
+
+State: useFormBuilder (local) + TanStack Query for async
+
+Component Libraries: Tailwind, Radix UI, React‑Flow, Framer Motion
+
+Auth: NextAuth v4 with Prisma adapter – supports email + OAuth (Google) later
+
+8.2 Back‑end
+
+API Layer: TRPC 11 – routers for auth, form, submission, analytics
+
+Database: PostgreSQL 15 with Prisma schema (Users, Orgs, Forms, Fields, Responses, AuditLogs)
+
+Storage: AWS S3 (private buckets) using presigned POST for uploads
+
+Background Jobs (later): AWS Lambda or Vercel queues for webhooks
+
+8.3 Deployment
+
+Vercel – front‑end, edge functions for form serve
+
+AWS us‑east‑1 – RDS Postgres, S3, KMS, CloudFront (custom domain)
+
+GitHub Actions → Vercel Preview → Production
+
+8.4 Data Flow (Submission)
+
+Client posts multipart to /api/forms/[slug]/submit
+
+Route validates zod schema, uploads files to S3 with server‑side key
+
+Saves row in Responses table (FK to Form)
+
+Enqueues audit log entry and optional webhook
+
+Returns 201 + redirect URL
+
+9. UX / UI Guidelines
+
+No em‑dashes – use hyphens or commas (per founder style)
+
+Responsive canvas (min 320 px)
+
+Memoize expensive selectors, avoid prop drilling – favor context hooks
+
+Animations 60 fps (limit GSAP transforms to GPU layers)
+
+10. Milestones & Timeline (high level)
+
+Sprint
+
+Length
+
+Deliverables
+
+0 – Audit
+
+1 wk
+
+Code walkthrough, PRD sign‑off, backlog in GitHub Projects
+
+1
+
+2 wks
+
+Heading, Full Name, Email, Short / Long Text, Submit button
+
+2
+
+2 wks
+
+Address, Phone, Number, Dropdown, Single / Multi‑choice
+
+3
+
+2 wks
+
+Date, Time, Appointment, Signature, Image
+
+4
+
+2 wks
+
+Fill‑in‑Blank, Paragraph, Preview mode polish, form validation pass
+
+5
+
+2 wks
+
+Publish flow API, slug routing, secure submission handler
+
+6
+
+2 wks
+
+Dashboard v1: list + response table + CSV export
+
+7
+
+2 wks
+
+HIPAA audit prep, penetration test, launch checklist
+
+11. Acceptance Criteria
+
+All Phase 1 field types pass unit tests and e2e drag‑drop scenarios
+
+Form preview matches published render pixel‑for‑pixel (±2 px)
+
+Submissions trigger audit log entry within 500 ms
+
+100 percent tables encrypted, automated backup every 12 hours
+
+12. Risks & Mitigations
+
+Risk
+
+Probability
+
+Impact
+
+Mitigation
+
+HIPAA mis‑interpretation
+
+Medium
+
+High
+
+Engage third‑party compliance advisor in Sprint 5
+
+S3 latency spikes
+
+Low
+
+Medium
+
+Enable multi‑part uploads, retry on 5xx
+
+Form builder performance
+
+Medium
+
+Medium
+
+Virtualize large field lists with react‑window
+
+Scope creep on integrations
+
+High
+
+Medium
+
+Freeze Phase 1 feature set – integrations moved to Phase 3
+
+13. Out of Scope (MVP)
+
+Payments collection (Stripe) – Phase 3
+
+EHR / CRM integrations – Phase 3+
+
+Mobile native app – Backlog
+
+14. Open Questions
+
+Do we need multi‑language support in MVP?
+
+Will free tier include PHI storage or require upgrade?
+
+Preferred BI tool for advanced analytics?
+
+15. Glossary
+
+ePHI: Electronic Protected Health Information
+
+BAA: Business Associate Agreement
+
+MVP: Minimum Viable Product

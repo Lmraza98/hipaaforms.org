@@ -1,9 +1,11 @@
+'use client';
 import React from 'react';
 import { Reorder, AnimatePresence } from 'framer-motion';
 import { TypedFieldItem } from './TypedFieldItem';
 import { DropPlaceholder } from './DropPlaceholder';
 import type { FormFieldDefinition, FormValues, TypedFormApi } from '../types';
 import { fadeUp } from '../animations';
+import { PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
 
 interface FieldListProps {
   fields: FormFieldDefinition[];
@@ -52,17 +54,20 @@ export const FieldList = React.memo(({
                   <button
                     type="button"
                     onClick={() => fieldItemProps.handleFieldClick(fieldDef)}
-                    className="text-xs text-blue-600 hover:underline whitespace-nowrap"
+                    className="p-1 text-blue-600 hover:text-blue-700"
+                    title="Edit properties"
                   >
-                    Edit
+                    <PencilIcon className="w-4 h-4" aria-hidden="true" />
+                    <span className="sr-only">Edit properties</span>
                   </button>
                   <button
                     type="button"
                     onClick={(e) => { e.stopPropagation(); fieldItemProps.removeField(fieldDef.id); }}
-                    className="text-red-500 hover:text-red-700 text-xs"
+                    className="p-1 text-red-500 hover:text-red-700"
                     title="Remove field"
                   >
-                    Remove
+                    <TrashIcon className="w-4 h-4" aria-hidden="true" />
+                    <span className="sr-only">Remove field</span>
                   </button>
                 </div>
               )}

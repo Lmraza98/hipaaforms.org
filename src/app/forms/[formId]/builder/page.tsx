@@ -1,7 +1,7 @@
-// app/forms/[formId]/page.tsx
+// app/forms/[formId]/builder/page.tsx
 import React from 'react';
-import FormBuilder from '@/components/form-builder/components/FormBuilderClient';
+import FormBuilderClient from '@/components/form-builder';
 
 export default function FormBuilderPage() {
-  return <FormBuilder />;
+  return <FormBuilderClient />;
 }

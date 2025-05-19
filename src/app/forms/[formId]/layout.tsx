@@ -1,4 +1,5 @@
 // app/forms/[formId]/layout.tsx
+
 import React from 'react';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
@@ -6,9 +7,9 @@ import { redirect } from 'next/navigation';
 import type { Session } from 'next-auth';
 import { appRouter } from '@/server/trpc/routers';
 import { TRPCError } from '@trpc/server';
-import { FormBuilderProvider } from '@/components/form-builder/components/context';
+import { FormBuilderProvider } from '@/components/form-builder/context';
 import type { FormFieldDefinition } from '@/components/form-builder/types';
-import { FormBuilderNav } from '@/components/form-builder/components/Nav.client';
+import { FormBuilderNav } from '@/components/form-builder/ui/Nav';
 import { z } from 'zod';
 import { FormFieldOptionsSchema } from '@/server/trpc/routers/form';
 

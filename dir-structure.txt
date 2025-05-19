@@ -1,0 +1,202 @@
+.
+|–– .cursor
+|   |–– rules
+|   |   |–– naming-conventions.mdc
+|   |   |–– animations.mdc
+|   |   |–– app-structure.mdc
+|   |   |–– form-builder.mdc
+|   |   |–– component-boundaries.mdc
+|   |   |–– tailwind-ux.mdc
+|   |   |–– hipaa-writing.mdc
+|   |   |–– performance.mdc
+|   |   |–– tech-context.mdc
+|   |   |–– hipaa-data.mdc
+|–– local_s3.txt
+|–– .env.local
+|–– jest.setup.js
+|–– postcss.config.mjs
+|–– tsconfig.tsbuildinfo
+|–– jest.config.js
+|   |–– description
+|   |–– hooks
+|   |   |–– commit-msg.sample
+|   |   |–– pre-rebase.sample
+|   |   |–– pre-commit.sample
+|   |   |–– applypatch-msg.sample
+|   |   |–– fsmonitor-watchman.sample
+|   |   |–– pre-receive.sample
+|   |   |–– prepare-commit-msg.sample
+|   |   |–– post-update.sample
+|   |   |–– pre-merge-commit.sample
+|   |   |–– pre-applypatch.sample
+|   |   |–– pre-push.sample
+|   |   |–– update.sample
+|   |   |–– push-to-checkout.sample
+|   |–– refs
+|   |   |–– heads
+|   |   |   |–– main
+|   |   |–– tags
+|   |   |–– remotes
+|   |   |   |–– origin
+|   |   |   |   |–– main
+|   |–– index
+|   |–– COMMIT_EDITMSG
+|–– eslint.config.mjs
+|–– coverage
+|   |–– clover.xml
+|   |–– lcov.info
+|   |–– lcov-report
+|   |   |–– index.html
+|   |   |–– block-navigation.js
+|   |   |–– prettify.js
+|   |   |–– favicon.png
+|   |   |–– prettify.css
+|   |   |–– aws-s3.ts.html
+|   |   |–– sorter.js
+|   |   |–– base.css
+|   |   |–– sort-arrow-sprite.png
+|   |–– coverage-final.json
+|–– next.config.ts
+|–– src
+|   |–– middleware.ts
+|   |–– types
+|   |   |–– next-auth.d.ts
+|   |   |–– form.ts
+|   |   |–– forms.d.ts
+|   |–– app
+|   |   |–– sign-up
+|   |   |   |–– actions.ts
+|   |   |   |–– page.tsx
+|   |   |   |–– SignUpForm.client.tsx
+|   |   |–– favicon.ico
+|   |   |–– forms
+|   |   |   |–– [formId]
+|   |   |   |   |–– layout.tsx
+|   |   |   |   |–– error.tsx
+|   |   |   |   |–– loading.tsx
+|   |   |   |   |–– builder
+|   |   |   |   |   |–– page.tsx
+|   |   |   |   |–– not-found.tsx
+|   |   |   |–– FormsLibrary.client.tsx
+|   |   |   |–– page.tsx
+|   |   |–– _trpc
+|   |   |   |–– Provider.tsx
+|   |   |–– dashboard
+|   |   |   |–– CreateFormButton.client.tsx
+|   |   |   |–– page.tsx
+|   |   |–– layout.tsx
+|   |   |–– api
+|   |   |   |–– forms
+|   |   |   |   |–– route.ts
+|   |   |   |   |–– [slug]
+|   |   |   |   |   |–– download
+|   |   |   |   |   |   |–– route.ts
+|   |   |   |–– auth
+|   |   |   |   |–– [...nextauth]
+|   |   |   |   |   |–– route.ts
+|   |   |   |–– trpc
+|   |   |   |   |–– [trpc]
+|   |   |   |   |   |–– route.ts
+|   |   |–– sign-in
+|   |   |   |–– SignInForm.client.tsx
+|   |   |   |–– actions.ts
+|   |   |   |–– page.tsx
+|   |   |–– trpc-demo
+|   |   |   |–– page.tsx
+|   |   |–– page.tsx
+|   |   |–– pricing
+|   |   |   |–– PricingClient.tsx
+|   |   |   |–– page.tsx
+|   |   |–– globals.css
+|   |–– trpc
+|   |   |–– client.ts
+|   |   |–– server.ts
+|   |–– server
+|   |   |–– trpc
+|   |   |   |–– routers
+|   |   |   |   |–– ping.ts
+|   |   |   |   |–– form.ts
+|   |   |   |   |–– index.ts
+|   |   |   |–– trpc.ts
+|   |   |–– db
+|   |   |   |–– index.ts
+|   |   |–– api
+|   |   |   |–– trpc.ts
+|   |   |   |–– root.ts
+|   |–– utils
+|   |   |–– trpc.ts
+|   |   |–– validators.ts
+|   |   |–– fieldMapper.ts
+|   |–– components
+|   |   |–– SideDrawer.tsx
+|   |   |–– layout
+|   |   |   |–– LayoutController.client.tsx
+|   |   |–– form-builder
+|   |   |   |–– index.tsx
+|   |   |   |–– utils
+|   |   |   |   |–– fieldHelpers.ts
+|   |   |   |–– types.ts
+|   |   |   |–– components
+|   |   |   |   |–– FormTitle.tsx
+|   |   |   |   |–– PropertiesPanel.tsx
+|   |   |   |   |–– FieldList.tsx
+|   |   |   |   |–– FormBuilderClient.tsx
+|   |   |   |   |–– InlineEditableTitle.client.tsx
+|   |   |   |   |–– Palette.tsx
+|   |   |   |   |–– OrganizationSettingsModal.tsx
+|   |   |   |   |–– FieldCanvas.tsx
+|   |   |   |   |–– TypedFieldItem.tsx
+|   |   |   |   |–– DropPlaceholder.tsx
+|   |   |   |   |–– FieldItem
+|   |   |   |   |   |–– index.tsx
+|   |   |   |   |   |–– InputFieldItem.tsx
+|   |   |   |   |   |–– FieldInfo.tsx
+|   |   |   |   |   |–– getContainerClasses.ts
+|   |   |   |   |   |–– usePreviewProps.ts
+|   |   |   |   |   |–– useFlashOutline.ts
+|   |   |   |   |   |–– SubmitButtonItem.tsx
+|   |   |   |   |–– context.tsx
+|   |   |   |   |–– Nav
+|   |   |   |   |   |–– index.tsx
+|   |   |   |   |   |–– TopBar.tsx
+|   |   |   |   |   |–– SubNav.tsx
+|   |   |   |   |–– animations.ts
+|   |   |   |–– hooks
+|   |   |   |   |–– useFormBuilder.ts
+|   |   |   |   |–– formBuilderReducer.ts
+|   |   |   |   |–– usePropertyChanger.ts
+|   |   |   |   |–– useClickOutside.ts
+|   |   |   |   |–– formBuilderState.ts
+|   |   |   |   |–– usePrevious.ts
+|   |   |   |   |–– useFormMutations.ts
+|   |   |   |   |–– useFieldValidators.ts
+|   |   |   |–– fields
+|   |   |   |   |–– SubmitButton.tsx
+|   |   |   |   |–– Email.tsx
+|   |   |   |   |–– Heading.tsx
+|   |   |   |   |–– Dropdown.tsx
+|   |   |   |   |–– DefaultPreview.tsx
+|   |   |   |   |–– index.ts
+|   |   |   |   |–– ShortText.tsx
+|   |   |–– Logo.tsx
+|   |   |–– marketing
+|   |   |   |–– VolumetricGodRays.client.tsx
+|   |   |   |–– WhyChoose.client.tsx
+|   |   |   |–– Navigation.client.tsx
+|   |   |   |–– GodRaysRemote.client.tsx
+|   |   |   |–– PatientDemoForm.client.tsx
+|   |   |   |–– BadgeStrip.tsx
+|   |   |   |–– AnimatedGradient.tsx
+|   |   |   |–– ClientSessionProvider.tsx
+|   |   |   |–– FormCard.tsx
+|   |   |   |–– Hero.client.tsx
+|   |   |   |–– CTAButtons.tsx
+|   |   |   |–– animations.ts
+|   |–– lib
+|   |   |–– prisma.ts
+|   |   |–– s3.ts
+|   |   |–– aws-s3.ts
+|   |   |–– forms.ts
+|   |   |–– aws-s3.test.ts
+|   |   |–– auth.ts
+|   |–– auth.ts
